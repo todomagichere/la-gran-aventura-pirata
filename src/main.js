@@ -16,7 +16,7 @@ root.innerHTML = `
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Supera estos retos antes de subir a bordo. ¡Que comience la aventura!</p><div class="game-layout">
       <div class="game-card"><div class="game-title"><span class="game-icon">🧭</span><div><p>JUEGO DE MEMORIA</p><h3>Parejas del océano</h3></div></div><div class="memory" id="memory"></div><div class="game-footer"><small id="memory-status">0 de 4 parejas encontradas</small><button id="memory-reset">Jugar de nuevo ↻</button></div></div>
       <div class="game-card"><div class="game-title"><span class="game-icon">🗺️</span><div><p>BUSCA EL TESORO</p><h3>¿Dónde está el cofre?</h3></div></div><p class="hint">Elige un lugar de la isla y excava. ¡Solo una X esconde el tesoro!</p><div class="dig-grid" id="dig-grid"></div><div class="game-footer"><small id="treasure-status">Toca una X para excavar</small><button id="treasure-reset">Nueva isla ↻</button></div></div>
-      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>WALK SIMULATOR 3D</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Cargando la isla…</b><span>Preparando el mapa del tesoro</span></div><div class="fps-hud"><span id="fps-status">La isla se está preparando</span><span>E S D F · ratón · espacio para saltar</span></div></div><div class="game-footer"><small id="fps-distance">Explora la isla y encuentra el cofre.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
+      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>WALK SIMULATOR 3D</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Cargando la isla…</b><span>Preparando el mapa del tesoro</span></div><div class="fps-hud"><span id="fps-status">La isla se está preparando</span><span>W adelante · A izquierda · S atrás · D derecha</span></div></div><div class="game-footer"><small id="fps-distance">Espacio para saltar · explora la isla y encuentra el cofre.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
     </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
@@ -154,10 +154,10 @@ function resetFps() {
 function moveFps(dt) {
   const speed = fpsKeys.has('shift') ? 4.4 : 2.8;
   let forward = 0, side = 0;
-  if (fpsKeys.has('e')) forward += 1;
-  if (fpsKeys.has('d')) forward -= 1;
-  if (fpsKeys.has('f')) side += 1;
-  if (fpsKeys.has('s')) side -= 1;
+  if (fpsKeys.has('w')) forward += 1;
+  if (fpsKeys.has('s')) forward -= 1;
+  if (fpsKeys.has('d')) side += 1;
+  if (fpsKeys.has('a')) side -= 1;
   const len = Math.hypot(forward, side) || 1;
   const step = speed * dt;
   const nextX = player.x + (Math.cos(player.angle) * forward / len + Math.cos(player.angle + Math.PI / 2) * side / len) * step;
@@ -399,15 +399,18 @@ const fpsCamera = new THREE.PerspectiveCamera(72, 16 / 9, .1, 240);
 const fpsClock = new THREE.Clock();
 const down = new THREE.Vector3(0, -1, 0);
 const walkDirection = new THREE.Vector3();
+const cameraForward = new THREE.Vector3();
+const cameraRight = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
 const palmColliders = [];
+const obstacleColliders = [];
 let islandRoot;
 let islandBounds;
 let islandSize;
 let spawnPoint;
 let treasurePoint;
 let groundLevel = 0;
-const islandMeshes = [];
+const groundMeshes = [];
 let yaw = Math.PI;
 let pitch = -.08;
 let fpsReady = false;
@@ -468,10 +471,19 @@ function placePlayerAtSpawn() {
 }
 
 function terrainHeightAt(x, z) {
-  if (!islandMeshes.length || !islandBounds) return null;
+  if (!groundMeshes.length || !islandBounds) return null;
   raycaster.set(new THREE.Vector3(x, islandBounds.max.y + 40, z), down);
-  const hit = raycaster.intersectObjects(islandMeshes, false)[0];
+  const hit = raycaster.intersectObjects(groundMeshes, false)[0];
   return hit ? hit.point.y : null;
+}
+
+function hitsObstacle(position) {
+  const footHeight = groundLevel - 1.72;
+  return obstacleColliders.some(box => {
+    const closeX = position.x > box.min.x - .38 && position.x < box.max.x + .38;
+    const closeZ = position.z > box.min.z - .38 && position.z < box.max.z + .38;
+    return closeX && closeZ && box.min.y < footHeight + .5 && box.max.y > footHeight + .2;
+  });
 }
 
 function updateFpsHud() {
@@ -497,14 +509,19 @@ function movePlayer(delta) {
   if (fpsKeys.has('s')) side -= 1;
   if (forward || side) {
     const speed = fpsKeys.has('shift') ? 8.5 : 5.2;
-    walkDirection.set(-Math.sin(yaw) * forward + Math.cos(yaw) * side, 0, -Math.cos(yaw) * forward - Math.sin(yaw) * side).normalize();
+    fpsCamera.getWorldDirection(cameraForward);
+    cameraForward.y = 0;
+    cameraForward.normalize();
+    cameraRight.crossVectors(cameraForward, fpsCamera.up).normalize();
+    walkDirection.copy(cameraForward).multiplyScalar(forward).addScaledVector(cameraRight, side).normalize();
     const next = fpsCamera.position.clone().addScaledVector(walkDirection, speed * delta);
     const margin = 1.2;
     const hitsPalm = palmColliders.some(palm => Math.hypot(next.x - palm.x, next.z - palm.z) < palm.radius);
-    if (!hitsPalm && next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
+    if (!hitsPalm && !hitsObstacle(next) && next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
       const terrainHeight = terrainHeightAt(next.x, next.z);
-      if (terrainHeight !== null) {
-        groundLevel = terrainHeight + 1.72;
+      const nextGroundLevel = terrainHeight === null ? groundLevel : terrainHeight + 1.72;
+      if (nextGroundLevel - groundLevel <= .45) {
+        groundLevel = nextGroundLevel;
         fpsCamera.position.x = next.x;
         fpsCamera.position.z = next.z;
       }
@@ -581,9 +598,9 @@ function createTerrainRing(center, baseY, modelSize) {
     const z = position.getZ(index);
     const radius = Math.hypot(x, z);
     const blend = (radius - innerRadius) / (outerRadius - innerRadius);
-    const waves = Math.sin(x * .13) * Math.cos(z * .11) * .82 + Math.sin((x + z) * .19) * .38;
-    const ridge = Math.max(0, Math.sin(x * .06 - z * .08 + 1.5)) * (1 - blend) * 1.45;
-    position.setY(index, baseY + waves * (1 - blend * .35) + ridge - blend * .92);
+    const waves = Math.sin(x * .13) * Math.cos(z * .11) * .22 + Math.sin((x + z) * .19) * .1;
+    const ridge = Math.max(0, Math.sin(x * .06 - z * .08 + 1.5)) * .35;
+    position.setY(index, baseY + (waves + ridge) * blend * (1 - blend) - blend * .35);
     if (blend < .18) color.set('#d8b966');
     else if (blend < .68) color.set('#6f9252');
     else if (blend < .87) color.set('#b7aa5e');
@@ -602,17 +619,31 @@ function loadIsland() {
   const loader = new GLTFLoader();
   loader.load('/src/assets/island/treasure-island.glb', gltf => {
     islandRoot = gltf.scene;
-    islandRoot.getObjectByName('sea')?.removeFromParent();
     const sourceBounds = new THREE.Box3().setFromObject(islandRoot);
     const sourceSize = sourceBounds.getSize(new THREE.Vector3());
     islandRoot.scale.setScalar(76 / Math.max(sourceSize.x, sourceSize.z));
     islandRoot.updateMatrixWorld(true);
     islandRoot.traverse(node => {
       if (!node.isMesh) return;
-      islandMeshes.push(node);
       node.castShadow = true;
       node.receiveShadow = true;
       const materials = Array.isArray(node.material) ? node.material : [node.material];
+      const isSourceTerrain = node.name.toLowerCase() === 'sea';
+      if (isSourceTerrain) {
+        node.material = new THREE.MeshStandardMaterial({ color: '#6f9252', roughness: .94, metalness: 0, side: THREE.DoubleSide });
+        groundMeshes.push(node);
+      }
+      const isGround = isSourceTerrain || materials.some(material => ['sand', 'föld'].includes(material?.name?.toLowerCase()));
+      if (isGround) groundMeshes.push(node);
+      if (!isGround && !node.name.toLowerCase().includes('palm')) {
+        const box = new THREE.Box3().setFromObject(node);
+        const size = box.getSize(new THREE.Vector3());
+        if (size.y > 3 && size.x > 4 && size.z > 4) obstacleColliders.push(box);
+      }
+      if (node.name.toLowerCase().includes('palm')) {
+        const position = node.getWorldPosition(new THREE.Vector3());
+        palmColliders.push({ x: position.x, z: position.z, radius: 1 });
+      }
       materials.forEach(material => {
         if (material?.map) material.map.colorSpace = THREE.SRGBColorSpace;
       });
@@ -623,9 +654,10 @@ function loadIsland() {
     const center = islandBounds.getCenter(new THREE.Vector3());
     const modelBounds = islandBounds.clone();
     const modelSize = islandSize.clone();
-    const terrain = createTerrainRing(center, islandBounds.min.y + .04, islandSize);
+    const terrainBase = terrainHeightAt(center.x, center.z) ?? islandBounds.min.y;
+    const terrain = createTerrainRing(center, terrainBase - .05, islandSize);
     fpsScene.add(terrain);
-    islandMeshes.push(terrain);
+    groundMeshes.push(terrain);
     islandBounds.expandByObject(terrain);
     islandSize = islandBounds.getSize(new THREE.Vector3());
     const addPalm = (x, z, height, lean) => {
@@ -662,13 +694,13 @@ function loadIsland() {
     marker.position.copy(treasurePoint);
     marker.position.y += .02;
     fpsScene.add(marker);
-    spawnPoint = new THREE.Vector3(center.x, modelBounds.max.y + 2, modelBounds.max.z - modelSize.z * .3);
+    spawnPoint = new THREE.Vector3(center.x, modelBounds.max.y + 2, center.z + modelSize.z * .72);
     const spawnTerrain = terrainHeightAt(spawnPoint.x, spawnPoint.z);
-    if (spawnTerrain !== null) spawnPoint.y = spawnTerrain + 1.72;
+    spawnPoint.y = (spawnTerrain ?? modelBounds.min.y) + 1.72;
     placePlayerAtSpawn();
     fpsReady = true;
     fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
-    setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar');
+    setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar');
   }, undefined, () => {
     fpsStatus.textContent = 'No se ha podido cargar la isla';
     setOverlay('No se pudo abrir la isla', 'Recarga la página para volver a intentarlo');
@@ -680,7 +712,7 @@ function resetFps() {
   fpsKeys.clear();
   placePlayerAtSpawn();
   fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
-  setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar');
+  setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar');
   document.exitPointerLock?.();
 }
 
@@ -691,7 +723,7 @@ function enterFps() {
 document.addEventListener('pointerlockchange', () => {
   if (!fpsReady || fpsWon) return;
   const active = document.pointerLockElement === fpsCanvas;
-  setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar', !active);
+  setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar', !active);
 });
 document.addEventListener('mousemove', event => {
   if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
@@ -701,15 +733,16 @@ document.addEventListener('mousemove', event => {
 });
 document.addEventListener('keydown', event => {
   if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
-  const key = event.key.toLowerCase();
-  if (['e', 's', 'd', 'f', 'shift'].includes(key)) fpsKeys.add(key);
+  const movementKey = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ShiftLeft: 'shift', ShiftRight: 'shift' }[event.code];
+  if (movementKey) fpsKeys.add(movementKey);
   if (event.code === 'Space') {
     if (!event.repeat && fpsCamera.position.y <= groundLevel + .001) verticalVelocity = 8.2;
     event.preventDefault();
   }
 });
 document.addEventListener('keyup', event => {
-  fpsKeys.delete(event.key.toLowerCase());
+  const movementKey = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ShiftLeft: 'shift', ShiftRight: 'shift' }[event.code];
+  if (movementKey) fpsKeys.delete(movementKey);
 });
 fpsShell.addEventListener('click', enterFps);
 fpsCanvas.addEventListener('click', enterFps);
