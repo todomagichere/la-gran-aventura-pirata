@@ -400,11 +400,14 @@ const fpsClock = new THREE.Clock();
 const down = new THREE.Vector3(0, -1, 0);
 const walkDirection = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
+const palmColliders = [];
 let islandRoot;
 let islandBounds;
 let islandSize;
 let spawnPoint;
 let treasurePoint;
+let groundLevel = 0;
+const islandMeshes = [];
 let yaw = Math.PI;
 let pitch = -.08;
 let fpsReady = false;
@@ -418,7 +421,7 @@ fpsRenderer.outputColorSpace = THREE.SRGBColorSpace;
 fpsRenderer.toneMapping = THREE.ACESFilmicToneMapping;
 fpsRenderer.toneMappingExposure = 1.15;
 fpsScene.background = new THREE.Color('#78c9d5');
-fpsScene.fog = new THREE.FogExp2('#78c9d5', .018);
+fpsScene.fog = new THREE.FogExp2('#78c9d5', .008);
 fpsCamera.rotation.order = 'YXZ';
 fpsScene.add(fpsCamera);
 
@@ -428,10 +431,10 @@ const sun = new THREE.DirectionalLight('#fff1be', 3.2);
 sun.position.set(-18, 28, 12);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.left = -45;
-sun.shadow.camera.right = 45;
-sun.shadow.camera.top = 45;
-sun.shadow.camera.bottom = -45;
+sun.shadow.camera.left = -120;
+sun.shadow.camera.right = 120;
+sun.shadow.camera.top = 120;
+sun.shadow.camera.bottom = -120;
 fpsScene.add(sun);
 
 function setOverlay(title, text, visible = true) {
@@ -456,11 +459,19 @@ function resizeFps() {
 function placePlayerAtSpawn() {
   if (!spawnPoint || !treasurePoint) return;
   fpsCamera.position.copy(spawnPoint);
+  groundLevel = spawnPoint.y;
   const lookAt = treasurePoint.clone().setY(fpsCamera.position.y);
   yaw = Math.atan2(fpsCamera.position.x - lookAt.x, fpsCamera.position.z - lookAt.z);
   pitch = -.08;
   verticalVelocity = 0;
   setCameraRotation();
+}
+
+function terrainHeightAt(x, z) {
+  if (!islandMeshes.length || !islandBounds) return null;
+  raycaster.set(new THREE.Vector3(x, islandBounds.max.y + 40, z), down);
+  const hit = raycaster.intersectObjects(islandMeshes, false)[0];
+  return hit ? hit.point.y : null;
 }
 
 function updateFpsHud() {
@@ -489,14 +500,19 @@ function movePlayer(delta) {
     walkDirection.set(-Math.sin(yaw) * forward + Math.cos(yaw) * side, 0, -Math.cos(yaw) * forward - Math.sin(yaw) * side).normalize();
     const next = fpsCamera.position.clone().addScaledVector(walkDirection, speed * delta);
     const margin = 1.2;
-    if (next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
-      fpsCamera.position.x = next.x;
-      fpsCamera.position.z = next.z;
+    const hitsPalm = palmColliders.some(palm => Math.hypot(next.x - palm.x, next.z - palm.z) < palm.radius);
+    if (!hitsPalm && next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
+      const terrainHeight = terrainHeightAt(next.x, next.z);
+      if (terrainHeight !== null) {
+        groundLevel = terrainHeight + 1.72;
+        fpsCamera.position.x = next.x;
+        fpsCamera.position.z = next.z;
+      }
     }
   }
   verticalVelocity -= 24 * delta;
-  fpsCamera.position.y = Math.max(spawnPoint.y, fpsCamera.position.y + verticalVelocity * delta);
-  if (fpsCamera.position.y === spawnPoint.y) verticalVelocity = 0;
+  fpsCamera.position.y = Math.max(groundLevel, fpsCamera.position.y + verticalVelocity * delta);
+  if (fpsCamera.position.y === groundLevel) verticalVelocity = 0;
 }
 
 function createTreasureMarker() {
@@ -552,17 +568,45 @@ function createPalmTree(height, lean = 0) {
   return palm;
 }
 
+function createTerrainRing(center, baseY, modelSize) {
+  const innerRadius = Math.max(modelSize.x, modelSize.z) * .48;
+  const outerRadius = innerRadius * 3.2;
+  const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 96, 12);
+  geometry.rotateX(-Math.PI / 2);
+  const position = geometry.getAttribute('position');
+  const colors = new Float32Array(position.count * 3);
+  const color = new THREE.Color();
+  for (let index = 0; index < position.count; index += 1) {
+    const x = position.getX(index);
+    const z = position.getZ(index);
+    const radius = Math.hypot(x, z);
+    const blend = (radius - innerRadius) / (outerRadius - innerRadius);
+    const waves = Math.sin(x * .22) * Math.cos(z * .18) * .18 + Math.sin((x + z) * .37) * .08;
+    position.setY(index, baseY + waves * (1 - blend) - blend * .42);
+    if (blend < .28) color.set('#caa85a');
+    else if (blend < .72) color.set('#759353');
+    else color.set('#d6bd73');
+    colors.set([color.r, color.g, color.b], index * 3);
+  }
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  const terrain = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92, metalness: 0 }));
+  terrain.position.set(center.x, 0, center.z);
+  terrain.receiveShadow = true;
+  return terrain;
+}
+
 function loadIsland() {
   const loader = new GLTFLoader();
   loader.load('/src/assets/island/treasure-island.glb', gltf => {
     islandRoot = gltf.scene;
-    islandRoot.rotation.y = Math.PI;
     const sourceBounds = new THREE.Box3().setFromObject(islandRoot);
     const sourceSize = sourceBounds.getSize(new THREE.Vector3());
-    islandRoot.scale.setScalar(38 / Math.max(sourceSize.x, sourceSize.z));
+    islandRoot.scale.setScalar(60 / Math.max(sourceSize.x, sourceSize.z));
     islandRoot.updateMatrixWorld(true);
     islandRoot.traverse(node => {
       if (!node.isMesh) return;
+      islandMeshes.push(node);
       node.castShadow = true;
       node.receiveShadow = true;
       const materials = Array.isArray(node.material) ? node.material : [node.material];
@@ -574,18 +618,28 @@ function loadIsland() {
     islandBounds = new THREE.Box3().setFromObject(islandRoot);
     islandSize = islandBounds.getSize(new THREE.Vector3());
     const center = islandBounds.getCenter(new THREE.Vector3());
-    [
-      [-.32, -.12, 5.8, -.16],
-      [-.1, .23, 6.9, .1],
-      [.22, -.18, 6.3, -.12],
-      [.3, .17, 5.4, .18],
-      [.04, -.34, 6.1, -.08],
-      [-.28, .28, 5.6, .14]
-    ].forEach(([x, z, height, lean]) => {
+    const modelBounds = islandBounds.clone();
+    const modelSize = islandSize.clone();
+    const terrain = createTerrainRing(center, islandBounds.min.y + .04, islandSize);
+    fpsScene.add(terrain);
+    islandMeshes.push(terrain);
+    islandBounds.expandByObject(terrain);
+    islandSize = islandBounds.getSize(new THREE.Vector3());
+    const addPalm = (x, z, height, lean) => {
       const palm = createPalmTree(height, lean);
-      palm.position.set(center.x + islandSize.x * x, islandBounds.min.y, center.z + islandSize.z * z);
+      const palmX = center.x + modelSize.x * x;
+      const palmZ = center.z + modelSize.z * z;
+      const terrainHeight = terrainHeightAt(palmX, palmZ);
+      palm.position.set(palmX, terrainHeight ?? islandBounds.min.y, palmZ);
+      palmColliders.push({ x: palmX, z: palmZ, radius: .82 });
       fpsScene.add(palm);
-    });
+    };
+    [
+      [-.32, -.12, 7.4, -.16], [-.1, .23, 8.5, .1], [.22, -.18, 7.8, -.12],
+      [.3, .17, 7.1, .18], [.04, -.34, 7.6, -.08], [-.28, .28, 7.2, .14],
+      [-1.08, -.48, 9.2, -.12], [.92, -.62, 8.8, .16], [.78, .66, 9.4, -.18],
+      [-.88, .72, 8.6, .11], [.12, 1.04, 7.9, -.09], [-.18, -1.12, 8.2, .15]
+    ].forEach(([x, z, height, lean]) => addPalm(x, z, height, lean));
     const water = new THREE.Mesh(
       new THREE.PlaneGeometry(islandSize.x * 7, islandSize.z * 7),
       new THREE.MeshPhysicalMaterial({ color: '#087b9a', roughness: .22, metalness: .18, transparent: true, opacity: .88 })
@@ -595,12 +649,15 @@ function loadIsland() {
     water.receiveShadow = true;
     fpsScene.add(water);
 
-    treasurePoint = new THREE.Vector3(center.x, islandBounds.min.y, center.z);
+    const treasureGround = terrainHeightAt(center.x, center.z) ?? islandBounds.min.y;
+    treasurePoint = new THREE.Vector3(center.x, treasureGround, center.z);
     const marker = createTreasureMarker();
     marker.position.copy(treasurePoint);
     marker.position.y += .02;
     fpsScene.add(marker);
-    spawnPoint = new THREE.Vector3(center.x, islandBounds.min.y + 1.72, islandBounds.max.z - islandSize.z * .3);
+    spawnPoint = new THREE.Vector3(center.x, modelBounds.max.y + 2, modelBounds.max.z - modelSize.z * .3);
+    const spawnTerrain = terrainHeightAt(spawnPoint.x, spawnPoint.z);
+    if (spawnTerrain !== null) spawnPoint.y = spawnTerrain + 1.72;
     placePlayerAtSpawn();
     fpsReady = true;
     fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
@@ -640,7 +697,7 @@ document.addEventListener('keydown', event => {
   const key = event.key.toLowerCase();
   if (['e', 's', 'd', 'f', 'shift'].includes(key)) fpsKeys.add(key);
   if (event.code === 'Space') {
-    if (!event.repeat && fpsCamera.position.y <= spawnPoint.y + .001) verticalVelocity = 8.2;
+    if (!event.repeat && fpsCamera.position.y <= groundLevel + .001) verticalVelocity = 8.2;
     event.preventDefault();
   }
 });
