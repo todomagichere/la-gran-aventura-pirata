@@ -11,6 +11,7 @@ root.innerHTML = `
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Supera estos retos antes de subir a bordo. ¡Que comience la aventura!</p><div class="game-layout">
       <div class="game-card"><div class="game-title"><span class="game-icon">🧭</span><div><p>JUEGO DE MEMORIA</p><h3>Parejas del océano</h3></div></div><div class="memory" id="memory"></div><div class="game-footer"><small id="memory-status">0 de 4 parejas encontradas</small><button id="memory-reset">Jugar de nuevo ↻</button></div></div>
       <div class="game-card"><div class="game-title"><span class="game-icon">🗺️</span><div><p>BUSCA EL TESORO</p><h3>¿Dónde está el cofre?</h3></div></div><p class="hint">Elige un lugar de la isla y excava. ¡Solo una X esconde el tesoro!</p><div class="dig-grid" id="dig-grid"></div><div class="game-footer"><small id="treasure-status">Toca una X para excavar</small><button id="treasure-reset">Nueva isla ↻</button></div></div>
+      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>FPS DE EXPLORACIÓN</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Entrar en la cala</b><span>Clic para explorar</span></div><div class="fps-hud"><span id="fps-status">Busca el cofre escondido</span><span>E S D F · espacio</span></div></div><div class="game-footer"><small id="fps-distance">El mapa aparece al mantener espacio.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
     </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
@@ -38,6 +39,217 @@ let treasure = Math.floor(Math.random() * 9), found = false;
 function renderTreasure() { document.getElementById('dig-grid').innerHTML = Array.from({ length: 9 }, (_, i) => `<button data-cell="${i}" aria-label="Excavar casilla ${i + 1}">${found && i === treasure ? '💰' : '✕'}</button>`).join(''); document.getElementById('treasure-status').textContent = found ? '¡Tesoro encontrado! ¡Buen trabajo!' : 'Toca una X para excavar'; }
 document.getElementById('dig-grid').addEventListener('click', event => { const button = event.target.closest('button'); if (button && Number(button.dataset.cell) === treasure) { found = true; renderTreasure(); } });
 document.getElementById('treasure-reset').addEventListener('click', () => { found = false; treasure = Math.floor(Math.random() * 9); renderTreasure(); }); renderTreasure();
+
+const fpsCanvas = document.getElementById('fps-canvas');
+const fpsCtx = fpsCanvas.getContext('2d');
+const fpsOverlay = document.getElementById('fps-overlay');
+const fpsStatus = document.getElementById('fps-status');
+const fpsDistance = document.getElementById('fps-distance');
+const islandMap = [
+  '################',
+  '#..............#',
+  '#..T.....R.....#',
+  '#..............#',
+  '#.....##.......#',
+  '#..R..##..T....#',
+  '#..............#',
+  '#......P.......#',
+  '#...........R..#',
+  '#...T..........#',
+  '#........##....#',
+  '#..R.....##....#',
+  '#..............#',
+  '#.......C......#',
+  '#..............#',
+  '################'
+];
+const fpsKeys = new Set();
+const playerStart = { x: 2.4, y: 13.2, angle: -0.72 };
+let player = { ...playerStart };
+let fpsWon = false;
+let showingMap = false;
+let lastFrame = performance.now();
+const treasureSpot = { x: 8.5, y: 13.5 };
+
+function fpsCell(x, y) {
+  const row = islandMap[Math.floor(y)];
+  return row ? row[Math.floor(x)] || '#' : '#';
+}
+
+function isBlocked(x, y) {
+  const cell = fpsCell(x, y);
+  return cell !== '.' && cell !== 'C';
+}
+
+function resetFps() {
+  player = { ...playerStart };
+  fpsWon = false;
+  showingMap = false;
+  fpsKeys.clear();
+  fpsStatus.textContent = 'Busca el cofre escondido';
+  fpsOverlay.querySelector('b').textContent = 'Entrar en la cala';
+  fpsOverlay.querySelector('span').textContent = 'Clic para explorar';
+  fpsOverlay.classList.remove('hidden');
+  document.exitPointerLock?.();
+}
+
+function moveFps(dt) {
+  const speed = fpsKeys.has('shift') ? 4.4 : 2.8;
+  let forward = 0, side = 0;
+  if (fpsKeys.has('e')) forward += 1;
+  if (fpsKeys.has('d')) forward -= 1;
+  if (fpsKeys.has('f')) side += 1;
+  if (fpsKeys.has('s')) side -= 1;
+  const len = Math.hypot(forward, side) || 1;
+  const step = speed * dt;
+  const nextX = player.x + (Math.cos(player.angle) * forward / len + Math.cos(player.angle + Math.PI / 2) * side / len) * step;
+  const nextY = player.y + (Math.sin(player.angle) * forward / len + Math.sin(player.angle + Math.PI / 2) * side / len) * step;
+  if (!isBlocked(nextX, player.y)) player.x = nextX;
+  if (!isBlocked(player.x, nextY)) player.y = nextY;
+}
+
+function drawFpsBackground(w, h) {
+  const sky = fpsCtx.createLinearGradient(0, 0, 0, h * .55);
+  sky.addColorStop(0, '#64cbd2');
+  sky.addColorStop(1, '#d5f0df');
+  fpsCtx.fillStyle = sky;
+  fpsCtx.fillRect(0, 0, w, h * .55);
+  fpsCtx.fillStyle = '#ffd35c';
+  fpsCtx.beginPath();
+  fpsCtx.arc(w * .78, h * .18, 34, 0, Math.PI * 2);
+  fpsCtx.fill();
+  const sand = fpsCtx.createLinearGradient(0, h * .55, 0, h);
+  sand.addColorStop(0, '#e8c56e');
+  sand.addColorStop(1, '#9c7942');
+  fpsCtx.fillStyle = sand;
+  fpsCtx.fillRect(0, h * .55, w, h * .45);
+}
+
+function castRay(rayAngle) {
+  let distance = 0;
+  let hit = '.';
+  const step = .035;
+  while (distance < 16) {
+    distance += step;
+    const x = player.x + Math.cos(rayAngle) * distance;
+    const y = player.y + Math.sin(rayAngle) * distance;
+    hit = fpsCell(x, y);
+    if (hit !== '.') break;
+  }
+  return { distance, hit };
+}
+
+function wallColor(hit, shade) {
+  const colors = {
+    '#': [88, 72, 47],
+    T: [26, 113, 79],
+    R: [94, 83, 74],
+    P: [117, 74, 42],
+    C: [176, 87, 39]
+  };
+  const [r, g, b] = colors[hit] || colors['#'];
+  return `rgb(${Math.max(0, r - shade)}, ${Math.max(0, g - shade)}, ${Math.max(0, b - shade)})`;
+}
+
+function drawFpsView() {
+  const w = fpsCanvas.width;
+  const h = fpsCanvas.height;
+  drawFpsBackground(w, h);
+  const fov = Math.PI / 3;
+  for (let x = 0; x < w; x += 2) {
+    const ratio = x / w - .5;
+    const angle = player.angle + ratio * fov;
+    const ray = castRay(angle);
+    const corrected = ray.distance * Math.cos(angle - player.angle);
+    const wallHeight = Math.min(h, h / Math.max(corrected, .12));
+    const top = (h - wallHeight) / 2;
+    const shade = Math.min(95, corrected * 9);
+    fpsCtx.fillStyle = wallColor(ray.hit, shade);
+    fpsCtx.fillRect(x, top, 2, wallHeight);
+    if (ray.hit === 'T' && wallHeight > 110) {
+      fpsCtx.fillStyle = 'rgba(255, 244, 214, .18)';
+      fpsCtx.fillRect(x, top, 2, wallHeight * .28);
+    }
+  }
+  fpsCtx.fillStyle = 'rgba(255, 255, 255, .82)';
+  fpsCtx.fillRect(w / 2 - 13, h / 2, 26, 2);
+  fpsCtx.fillRect(w / 2, h / 2 - 13, 2, 26);
+}
+
+function drawFpsMap() {
+  const size = 176;
+  const pad = 18;
+  const cell = size / islandMap.length;
+  fpsCtx.save();
+  fpsCtx.globalAlpha = .96;
+  fpsCtx.fillStyle = '#f3dfb0';
+  fpsCtx.fillRect(pad, pad, size, size);
+  islandMap.forEach((row, y) => [...row].forEach((cellValue, x) => {
+    if (cellValue === '.') return;
+    fpsCtx.fillStyle = cellValue === 'C' ? '#d95f37' : cellValue === 'T' ? '#1d7a56' : cellValue === 'R' ? '#7a7068' : '#59482f';
+    fpsCtx.fillRect(pad + x * cell, pad + y * cell, cell - 1, cell - 1);
+  }));
+  fpsCtx.fillStyle = '#063747';
+  fpsCtx.beginPath();
+  fpsCtx.arc(pad + player.x * cell, pad + player.y * cell, 4, 0, Math.PI * 2);
+  fpsCtx.fill();
+  fpsCtx.strokeStyle = '#063747';
+  fpsCtx.lineWidth = 2;
+  fpsCtx.beginPath();
+  fpsCtx.moveTo(pad + player.x * cell, pad + player.y * cell);
+  fpsCtx.lineTo(pad + (player.x + Math.cos(player.angle) * .9) * cell, pad + (player.y + Math.sin(player.angle) * .9) * cell);
+  fpsCtx.stroke();
+  fpsCtx.restore();
+}
+
+function updateFpsHud() {
+  const distance = Math.hypot(player.x - treasureSpot.x, player.y - treasureSpot.y);
+  if (!fpsWon && distance < .72) {
+    fpsWon = true;
+    fpsStatus.textContent = '¡Tesoro encontrado!';
+    fpsOverlay.querySelector('b').textContent = '¡Botín conseguido!';
+    fpsOverlay.querySelector('span').textContent = 'Pulsa volver al muelle para repetir';
+    fpsOverlay.classList.remove('hidden');
+    document.exitPointerLock?.();
+  }
+  fpsDistance.textContent = fpsWon ? 'La capitana ya tiene su cofre.' : `El cofre está a ${distance.toFixed(1)} pasos.`;
+}
+
+function tickFps(now) {
+  const dt = Math.min(.05, (now - lastFrame) / 1000);
+  lastFrame = now;
+  if (document.pointerLockElement === fpsCanvas && !fpsWon) moveFps(dt);
+  drawFpsView();
+  if (showingMap || fpsWon) drawFpsMap();
+  updateFpsHud();
+  requestAnimationFrame(tickFps);
+}
+
+fpsCanvas.addEventListener('click', () => {
+  if (!fpsWon) {
+    fpsCanvas.requestPointerLock?.();
+    fpsCanvas.focus();
+  }
+});
+document.addEventListener('pointerlockchange', () => fpsOverlay.classList.toggle('hidden', document.pointerLockElement === fpsCanvas && !fpsWon));
+document.addEventListener('mousemove', event => {
+  if (document.pointerLockElement === fpsCanvas && !fpsWon) player.angle += event.movementX * .0026;
+});
+document.addEventListener('keydown', event => {
+  const key = event.key.toLowerCase();
+  if (['e', 's', 'd', 'f', 'shift'].includes(key)) fpsKeys.add(key);
+  if (event.code === 'Space') {
+    showingMap = true;
+    if (document.pointerLockElement === fpsCanvas) event.preventDefault();
+  }
+});
+document.addEventListener('keyup', event => {
+  const key = event.key.toLowerCase();
+  fpsKeys.delete(key);
+  if (event.code === 'Space') showingMap = false;
+});
+document.getElementById('fps-reset').addEventListener('click', resetFps);
+requestAnimationFrame(tickFps);
 
 document.getElementById('rsvp-form').addEventListener('submit', event => { event.preventDefault(); const name = document.getElementById('guest-name').value.trim(); const answer = document.getElementById('guest-answer').value; localStorage.setItem('lira-rsvp', JSON.stringify({ name, answer })); document.getElementById('rsvp-slot').innerHTML = `<div class="success" role="status"><b>¡Embarque confirmado, ${name.replace(/[<>]/g, '')}! ⚓</b><span>Tu respuesta ha quedado guardada en este dispositivo.</span><button id="change-rsvp">Cambiar respuesta</button></div>`; document.getElementById('change-rsvp').addEventListener('click', () => window.location.reload()); });
 document.getElementById('back-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
