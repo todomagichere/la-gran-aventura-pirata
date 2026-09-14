@@ -1,0 +1,3 @@
+*.unitypackage
+**/*.unitypackage
+src/assets/*.unitypackage

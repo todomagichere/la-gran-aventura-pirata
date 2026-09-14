@@ -5,3 +5,6 @@ npm-debug.log*
 README.md
 Dockerfile*
 compose*.yaml
+*.unitypackage
+**/*.unitypackage
+src/assets/*.unitypackage

@@ -530,6 +530,7 @@ h1 em {
   gap: 8px;
   background: rgba(5, 47, 62, .62);
   color: #fff9ee;
+  cursor: pointer;
   text-align: center;
   transition: opacity .18s ease, visibility .18s ease;
 }

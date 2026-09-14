@@ -42,34 +42,51 @@ document.getElementById('treasure-reset').addEventListener('click', () => { foun
 
 const fpsCanvas = document.getElementById('fps-canvas');
 const fpsCtx = fpsCanvas.getContext('2d');
+const fpsShell = document.querySelector('.fps-shell');
 const fpsOverlay = document.getElementById('fps-overlay');
 const fpsStatus = document.getElementById('fps-status');
 const fpsDistance = document.getElementById('fps-distance');
 const islandMap = [
   '################',
-  '#..............#',
-  '#..T.....R.....#',
-  '#..............#',
+  '#...l......b...#',
+  '#..o.....x.....#',
+  '#......p.......#',
   '#.....##.......#',
-  '#..R..##..T....#',
+  '#..x..##..l....#',
   '#..............#',
-  '#......P.......#',
-  '#...........R..#',
-  '#...T..........#',
+  '#......p.i.o...#',
+  '#..............#',
+  '#...l..........#',
   '#........##....#',
-  '#..R.....##....#',
-  '#..............#',
+  '#..o.....##....#',
+  '#..........x...#',
   '#.......C......#',
-  '#..............#',
+  '#...p..........#',
   '################'
 ];
+const spriteMeta = {
+  b: { src: '/src/assets/port/boat.png', scale: 1.65, label: 'barco' },
+  C: { src: '/src/assets/port/chest.png', scale: .78, label: 'cofre' },
+  l: { src: '/src/assets/port/lamp.png', scale: .86, label: 'farol' },
+  i: { src: '/src/assets/port/pillar.png', scale: 1.08, label: 'pilar' },
+  o: { src: '/src/assets/port/barrel.png', scale: .82, label: 'barril' },
+  p: { src: '/src/assets/port/platform.png', scale: .94, label: 'plataforma' },
+  x: { src: '/src/assets/port/box.png', scale: .82, label: 'caja' }
+};
+const fpsImages = Object.fromEntries(Object.entries(spriteMeta).map(([key, meta]) => {
+  const image = new Image();
+  image.src = meta.src;
+  return [key, image];
+}));
+const fpsSprites = islandMap.flatMap((row, y) => [...row].flatMap((cell, x) => spriteMeta[cell] ? [{ type: cell, x: x + .5, y: y + .5 }] : []));
 const fpsKeys = new Set();
 const playerStart = { x: 2.4, y: 13.2, angle: -0.72 };
 let player = { ...playerStart };
 let fpsWon = false;
 let showingMap = false;
 let lastFrame = performance.now();
-const treasureSpot = { x: 8.5, y: 13.5 };
+let fpsDepth = [];
+const treasureSpot = fpsSprites.find(sprite => sprite.type === 'C');
 
 function fpsCell(x, y) {
   const row = islandMap[Math.floor(y)];
@@ -78,7 +95,7 @@ function fpsCell(x, y) {
 
 function isBlocked(x, y) {
   const cell = fpsCell(x, y);
-  return cell !== '.' && cell !== 'C';
+  return cell === '#' || cell === 'b' || cell === 'i' || cell === 'o' || cell === 'x';
 }
 
 function resetFps() {
@@ -134,20 +151,13 @@ function castRay(rayAngle) {
     const x = player.x + Math.cos(rayAngle) * distance;
     const y = player.y + Math.sin(rayAngle) * distance;
     hit = fpsCell(x, y);
-    if (hit !== '.') break;
+    if (hit === '#') break;
   }
   return { distance, hit };
 }
 
-function wallColor(hit, shade) {
-  const colors = {
-    '#': [88, 72, 47],
-    T: [26, 113, 79],
-    R: [94, 83, 74],
-    P: [117, 74, 42],
-    C: [176, 87, 39]
-  };
-  const [r, g, b] = colors[hit] || colors['#'];
+function wallColor(shade) {
+  const [r, g, b] = [88, 72, 47];
   return `rgb(${Math.max(0, r - shade)}, ${Math.max(0, g - shade)}, ${Math.max(0, b - shade)})`;
 }
 
@@ -156,6 +166,7 @@ function drawFpsView() {
   const h = fpsCanvas.height;
   drawFpsBackground(w, h);
   const fov = Math.PI / 3;
+  fpsDepth = new Array(w).fill(16);
   for (let x = 0; x < w; x += 2) {
     const ratio = x / w - .5;
     const angle = player.angle + ratio * fov;
@@ -164,16 +175,47 @@ function drawFpsView() {
     const wallHeight = Math.min(h, h / Math.max(corrected, .12));
     const top = (h - wallHeight) / 2;
     const shade = Math.min(95, corrected * 9);
-    fpsCtx.fillStyle = wallColor(ray.hit, shade);
+    fpsDepth[x] = corrected;
+    fpsDepth[x + 1] = corrected;
+    fpsCtx.fillStyle = wallColor(shade);
     fpsCtx.fillRect(x, top, 2, wallHeight);
-    if (ray.hit === 'T' && wallHeight > 110) {
-      fpsCtx.fillStyle = 'rgba(255, 244, 214, .18)';
-      fpsCtx.fillRect(x, top, 2, wallHeight * .28);
-    }
   }
   fpsCtx.fillStyle = 'rgba(255, 255, 255, .82)';
   fpsCtx.fillRect(w / 2 - 13, h / 2, 26, 2);
   fpsCtx.fillRect(w / 2, h / 2 - 13, 2, 26);
+}
+
+function normaliseAngle(angle) {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
+}
+
+function drawFpsSprites() {
+  const w = fpsCanvas.width;
+  const h = fpsCanvas.height;
+  const fov = Math.PI / 3;
+  const visibleSprites = fpsSprites
+    .map(sprite => ({ ...sprite, distance: Math.hypot(sprite.x - player.x, sprite.y - player.y) }))
+    .filter(sprite => sprite.distance > .2)
+    .sort((a, b) => b.distance - a.distance);
+
+  visibleSprites.forEach(sprite => {
+    const image = fpsImages[sprite.type];
+    const meta = spriteMeta[sprite.type];
+    if (!image?.complete) return;
+    const angle = normaliseAngle(Math.atan2(sprite.y - player.y, sprite.x - player.x) - player.angle);
+    if (Math.abs(angle) > fov * .7) return;
+    const centerX = (angle / fov + .5) * w;
+    const spriteHeight = Math.min(h * 1.35, h * meta.scale / sprite.distance);
+    const spriteWidth = spriteHeight * (image.naturalWidth / image.naturalHeight);
+    const left = centerX - spriteWidth / 2;
+    const groundY = h * .55 + h * .24 / Math.max(sprite.distance, .8);
+    const top = groundY - spriteHeight;
+    const sampleX = Math.max(0, Math.min(w - 1, Math.floor(centerX)));
+    if (sprite.distance > fpsDepth[sampleX] + .3) return;
+    fpsCtx.globalAlpha = Math.max(.35, 1 - sprite.distance / 18);
+    fpsCtx.drawImage(image, left, top, spriteWidth, spriteHeight);
+    fpsCtx.globalAlpha = 1;
+  });
 }
 
 function drawFpsMap() {
@@ -186,7 +228,7 @@ function drawFpsMap() {
   fpsCtx.fillRect(pad, pad, size, size);
   islandMap.forEach((row, y) => [...row].forEach((cellValue, x) => {
     if (cellValue === '.') return;
-    fpsCtx.fillStyle = cellValue === 'C' ? '#d95f37' : cellValue === 'T' ? '#1d7a56' : cellValue === 'R' ? '#7a7068' : '#59482f';
+    fpsCtx.fillStyle = cellValue === 'C' ? '#d95f37' : cellValue === 'l' ? '#f2b735' : cellValue === 'i' ? '#ddd0b4' : cellValue === 'p' ? '#a67e43' : cellValue === 'b' ? '#0a6871' : cellValue === 'o' || cellValue === 'x' ? '#8f462d' : '#59482f';
     fpsCtx.fillRect(pad + x * cell, pad + y * cell, cell - 1, cell - 1);
   }));
   fpsCtx.fillStyle = '#063747';
@@ -220,17 +262,22 @@ function tickFps(now) {
   lastFrame = now;
   if (document.pointerLockElement === fpsCanvas && !fpsWon) moveFps(dt);
   drawFpsView();
+  drawFpsSprites();
   if (showingMap || fpsWon) drawFpsMap();
   updateFpsHud();
   requestAnimationFrame(tickFps);
 }
 
-fpsCanvas.addEventListener('click', () => {
+function enterFps() {
   if (!fpsWon) {
     fpsCanvas.requestPointerLock?.();
     fpsCanvas.focus();
   }
-});
+}
+
+fpsShell.addEventListener('click', enterFps);
+fpsCanvas.addEventListener('click', enterFps);
+fpsOverlay.addEventListener('click', enterFps);
 document.addEventListener('pointerlockchange', () => fpsOverlay.classList.toggle('hidden', document.pointerLockElement === fpsCanvas && !fpsWon));
 document.addEventListener('mousemove', event => {
   if (document.pointerLockElement === fpsCanvas && !fpsWon) player.angle += event.movementX * .0026;
