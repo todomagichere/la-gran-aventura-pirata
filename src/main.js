@@ -1,3 +1,6 @@
+import * as THREE from '/src/vendor/three.module.js';
+import { GLTFLoader } from '/src/vendor/GLTFLoader.js';
+
 const root = document.getElementById('root');
 
 root.innerHTML = `
@@ -13,7 +16,7 @@ root.innerHTML = `
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Supera estos retos antes de subir a bordo. ¡Que comience la aventura!</p><div class="game-layout">
       <div class="game-card"><div class="game-title"><span class="game-icon">🧭</span><div><p>JUEGO DE MEMORIA</p><h3>Parejas del océano</h3></div></div><div class="memory" id="memory"></div><div class="game-footer"><small id="memory-status">0 de 4 parejas encontradas</small><button id="memory-reset">Jugar de nuevo ↻</button></div></div>
       <div class="game-card"><div class="game-title"><span class="game-icon">🗺️</span><div><p>BUSCA EL TESORO</p><h3>¿Dónde está el cofre?</h3></div></div><p class="hint">Elige un lugar de la isla y excava. ¡Solo una X esconde el tesoro!</p><div class="dig-grid" id="dig-grid"></div><div class="game-footer"><small id="treasure-status">Toca una X para excavar</small><button id="treasure-reset">Nueva isla ↻</button></div></div>
-      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>FPS DE EXPLORACIÓN</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Entrar en la cala</b><span>Clic para explorar</span></div><div class="fps-hud"><span id="fps-status">Busca el cofre escondido</span><span>E S D F · espacio</span></div></div><div class="game-footer"><small id="fps-distance">El mapa aparece al mantener espacio.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
+      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>WALK SIMULATOR 3D</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Cargando la isla…</b><span>Preparando el mapa del tesoro</span></div><div class="fps-hud"><span id="fps-status">La isla se está preparando</span><span>E S D F · ratón · espacio para saltar</span></div></div><div class="game-footer"><small id="fps-distance">Explora la isla y encuentra el cofre.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
     </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
@@ -77,6 +80,7 @@ function renderTreasure() { document.getElementById('dig-grid').innerHTML = Arra
 document.getElementById('dig-grid').addEventListener('click', event => { const button = event.target.closest('button'); if (button && Number(button.dataset.cell) === treasure) { found = true; renderTreasure(); } });
 document.getElementById('treasure-reset').addEventListener('click', () => { found = false; treasure = Math.floor(Math.random() * 9); renderTreasure(); }); renderTreasure();
 
+if (false) {
 const fpsCanvas = document.getElementById('fps-canvas');
 const fpsCtx = fpsCanvas.getContext('2d');
 const fpsShell = document.querySelector('.fps-shell');
@@ -381,6 +385,284 @@ document.addEventListener('keyup', event => {
 });
 document.getElementById('fps-reset').addEventListener('click', resetFps);
 requestAnimationFrame(tickFps);
+}
+
+const fpsCanvas = document.getElementById('fps-canvas');
+const fpsShell = document.querySelector('.fps-shell');
+const fpsOverlay = document.getElementById('fps-overlay');
+const fpsStatus = document.getElementById('fps-status');
+const fpsDistance = document.getElementById('fps-distance');
+const fpsKeys = new Set();
+const fpsRenderer = new THREE.WebGLRenderer({ canvas: fpsCanvas, antialias: true, powerPreference: 'high-performance' });
+const fpsScene = new THREE.Scene();
+const fpsCamera = new THREE.PerspectiveCamera(72, 16 / 9, .1, 240);
+const fpsClock = new THREE.Clock();
+const down = new THREE.Vector3(0, -1, 0);
+const walkDirection = new THREE.Vector3();
+const raycaster = new THREE.Raycaster();
+let islandRoot;
+let islandBounds;
+let islandSize;
+let spawnPoint;
+let treasurePoint;
+let yaw = Math.PI;
+let pitch = -.08;
+let fpsReady = false;
+let fpsWon = false;
+let verticalVelocity = 0;
+
+fpsRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+fpsRenderer.shadowMap.enabled = true;
+fpsRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+fpsRenderer.outputColorSpace = THREE.SRGBColorSpace;
+fpsRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+fpsRenderer.toneMappingExposure = 1.15;
+fpsScene.background = new THREE.Color('#78c9d5');
+fpsScene.fog = new THREE.FogExp2('#78c9d5', .018);
+fpsCamera.rotation.order = 'YXZ';
+fpsScene.add(fpsCamera);
+
+const hemisphere = new THREE.HemisphereLight('#d8f6ff', '#8b6137', 2.25);
+fpsScene.add(hemisphere);
+const sun = new THREE.DirectionalLight('#fff1be', 3.2);
+sun.position.set(-18, 28, 12);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -45;
+sun.shadow.camera.right = 45;
+sun.shadow.camera.top = 45;
+sun.shadow.camera.bottom = -45;
+fpsScene.add(sun);
+
+function setOverlay(title, text, visible = true) {
+  fpsOverlay.querySelector('b').textContent = title;
+  fpsOverlay.querySelector('span').textContent = text;
+  fpsOverlay.classList.toggle('hidden', !visible);
+}
+
+function setCameraRotation() {
+  fpsCamera.rotation.set(pitch, yaw, 0, 'YXZ');
+}
+
+function resizeFps() {
+  const width = fpsCanvas.clientWidth;
+  const height = fpsCanvas.clientHeight;
+  if (!width || !height) return;
+  fpsRenderer.setSize(width, height, false);
+  fpsCamera.aspect = width / height;
+  fpsCamera.updateProjectionMatrix();
+}
+
+function placePlayerAtSpawn() {
+  if (!spawnPoint || !treasurePoint) return;
+  fpsCamera.position.copy(spawnPoint);
+  const lookAt = treasurePoint.clone().setY(fpsCamera.position.y);
+  yaw = Math.atan2(fpsCamera.position.x - lookAt.x, fpsCamera.position.z - lookAt.z);
+  pitch = -.08;
+  verticalVelocity = 0;
+  setCameraRotation();
+}
+
+function updateFpsHud() {
+  if (!treasurePoint) return;
+  const distance = fpsCamera.position.distanceTo(treasurePoint);
+  if (!fpsWon && distance < 2.25) {
+    fpsWon = true;
+    fpsStatus.textContent = '¡Tesoro encontrado!';
+    fpsDistance.textContent = 'La capitana ya tiene su cofre.';
+    document.exitPointerLock?.();
+    setOverlay('¡Botín conseguido!', 'Pulsa “volver al muelle” para repetir');
+    return;
+  }
+  fpsDistance.textContent = `El cofre está a ${distance.toFixed(1)} pasos.`;
+}
+
+function movePlayer(delta) {
+  let forward = 0;
+  let side = 0;
+  if (fpsKeys.has('e')) forward += 1;
+  if (fpsKeys.has('d')) forward -= 1;
+  if (fpsKeys.has('f')) side += 1;
+  if (fpsKeys.has('s')) side -= 1;
+  if (forward || side) {
+    const speed = fpsKeys.has('shift') ? 8.5 : 5.2;
+    walkDirection.set(-Math.sin(yaw) * forward + Math.cos(yaw) * side, 0, -Math.cos(yaw) * forward - Math.sin(yaw) * side).normalize();
+    const next = fpsCamera.position.clone().addScaledVector(walkDirection, speed * delta);
+    const margin = 1.2;
+    if (next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
+      fpsCamera.position.x = next.x;
+      fpsCamera.position.z = next.z;
+    }
+  }
+  verticalVelocity -= 24 * delta;
+  fpsCamera.position.y = Math.max(spawnPoint.y, fpsCamera.position.y + verticalVelocity * delta);
+  if (fpsCamera.position.y === spawnPoint.y) verticalVelocity = 0;
+}
+
+function createTreasureMarker() {
+  const marker = new THREE.Group();
+  const chest = new THREE.Mesh(
+    new THREE.BoxGeometry(1.15, .72, .72),
+    new THREE.MeshStandardMaterial({ color: '#75401e', roughness: .58, metalness: .08 })
+  );
+  chest.position.y = .38;
+  chest.castShadow = true;
+  marker.add(chest);
+  const lid = new THREE.Mesh(
+    new THREE.CylinderGeometry(.36, .36, 1.15, 20, 1, false, 0, Math.PI),
+    new THREE.MeshStandardMaterial({ color: '#8d5228', roughness: .5, metalness: .1 })
+  );
+  lid.rotation.z = Math.PI / 2;
+  lid.position.y = .76;
+  lid.castShadow = true;
+  marker.add(lid);
+  const lock = new THREE.Mesh(new THREE.BoxGeometry(.16, .2, .06), new THREE.MeshStandardMaterial({ color: '#f3be37', emissive: '#7d4d00', emissiveIntensity: .7, metalness: .8, roughness: .25 }));
+  lock.position.set(0, .43, .39);
+  marker.add(lock);
+  const glow = new THREE.PointLight('#f4bd42', 12, 12, 2);
+  glow.position.set(0, 2.2, 0);
+  marker.add(glow);
+  return marker;
+}
+
+function createPalmTree(height, lean = 0) {
+  const palm = new THREE.Group();
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(.16, .29, height, 8),
+    new THREE.MeshStandardMaterial({ color: '#80512c', roughness: .92 })
+  );
+  trunk.position.y = height / 2;
+  trunk.rotation.z = lean;
+  trunk.castShadow = true;
+  trunk.receiveShadow = true;
+  palm.add(trunk);
+
+  const crown = new THREE.Group();
+  crown.position.set(Math.sin(lean) * height * .32, height, 0);
+  const leafMaterial = new THREE.MeshStandardMaterial({ color: '#237346', roughness: .76, side: THREE.DoubleSide });
+  for (let index = 0; index < 8; index += 1) {
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(.65, 3.3, 4, 1, true), leafMaterial);
+    leaf.rotation.set(Math.PI / 2.7, index * Math.PI / 4, Math.PI / 4);
+    leaf.scale.set(.5, 1, .14);
+    leaf.position.set(Math.cos(index * Math.PI / 4) * 1.1, .02, Math.sin(index * Math.PI / 4) * 1.1);
+    leaf.castShadow = true;
+    crown.add(leaf);
+  }
+  palm.add(crown);
+  return palm;
+}
+
+function loadIsland() {
+  const loader = new GLTFLoader();
+  loader.load('/src/assets/island/treasure-island.glb', gltf => {
+    islandRoot = gltf.scene;
+    islandRoot.rotation.y = Math.PI;
+    const sourceBounds = new THREE.Box3().setFromObject(islandRoot);
+    const sourceSize = sourceBounds.getSize(new THREE.Vector3());
+    islandRoot.scale.setScalar(38 / Math.max(sourceSize.x, sourceSize.z));
+    islandRoot.updateMatrixWorld(true);
+    islandRoot.traverse(node => {
+      if (!node.isMesh) return;
+      node.castShadow = true;
+      node.receiveShadow = true;
+      const materials = Array.isArray(node.material) ? node.material : [node.material];
+      materials.forEach(material => {
+        if (material?.map) material.map.colorSpace = THREE.SRGBColorSpace;
+      });
+    });
+    fpsScene.add(islandRoot);
+    islandBounds = new THREE.Box3().setFromObject(islandRoot);
+    islandSize = islandBounds.getSize(new THREE.Vector3());
+    const center = islandBounds.getCenter(new THREE.Vector3());
+    [
+      [-.32, -.12, 5.8, -.16],
+      [-.1, .23, 6.9, .1],
+      [.22, -.18, 6.3, -.12],
+      [.3, .17, 5.4, .18],
+      [.04, -.34, 6.1, -.08],
+      [-.28, .28, 5.6, .14]
+    ].forEach(([x, z, height, lean]) => {
+      const palm = createPalmTree(height, lean);
+      palm.position.set(center.x + islandSize.x * x, islandBounds.min.y, center.z + islandSize.z * z);
+      fpsScene.add(palm);
+    });
+    const water = new THREE.Mesh(
+      new THREE.PlaneGeometry(islandSize.x * 7, islandSize.z * 7),
+      new THREE.MeshPhysicalMaterial({ color: '#087b9a', roughness: .22, metalness: .18, transparent: true, opacity: .88 })
+    );
+    water.rotation.x = -Math.PI / 2;
+    water.position.set(center.x, islandBounds.min.y - .08, center.z);
+    water.receiveShadow = true;
+    fpsScene.add(water);
+
+    treasurePoint = new THREE.Vector3(center.x, islandBounds.min.y, center.z);
+    const marker = createTreasureMarker();
+    marker.position.copy(treasurePoint);
+    marker.position.y += .02;
+    fpsScene.add(marker);
+    spawnPoint = new THREE.Vector3(center.x, islandBounds.min.y + 1.72, islandBounds.max.z - islandSize.z * .3);
+    placePlayerAtSpawn();
+    fpsReady = true;
+    fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
+    setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar');
+  }, undefined, () => {
+    fpsStatus.textContent = 'No se ha podido cargar la isla';
+    setOverlay('No se pudo abrir la isla', 'Recarga la página para volver a intentarlo');
+  });
+}
+
+function resetFps() {
+  fpsWon = false;
+  fpsKeys.clear();
+  placePlayerAtSpawn();
+  fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
+  setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar');
+  document.exitPointerLock?.();
+}
+
+function enterFps() {
+  if (fpsReady && !fpsWon) fpsCanvas.requestPointerLock?.();
+}
+
+document.addEventListener('pointerlockchange', () => {
+  if (!fpsReady || fpsWon) return;
+  const active = document.pointerLockElement === fpsCanvas;
+  setOverlay('Entrar en la isla', 'Clic para explorar · ESDF para caminar', !active);
+});
+document.addEventListener('mousemove', event => {
+  if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
+  yaw -= event.movementX * .00235;
+  pitch = THREE.MathUtils.clamp(pitch - event.movementY * .0021, -1.35, 1.35);
+  setCameraRotation();
+});
+document.addEventListener('keydown', event => {
+  if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
+  const key = event.key.toLowerCase();
+  if (['e', 's', 'd', 'f', 'shift'].includes(key)) fpsKeys.add(key);
+  if (event.code === 'Space') {
+    if (!event.repeat && fpsCamera.position.y <= spawnPoint.y + .001) verticalVelocity = 8.2;
+    event.preventDefault();
+  }
+});
+document.addEventListener('keyup', event => {
+  fpsKeys.delete(event.key.toLowerCase());
+});
+fpsShell.addEventListener('click', enterFps);
+fpsCanvas.addEventListener('click', enterFps);
+fpsOverlay.addEventListener('click', enterFps);
+document.getElementById('fps-reset').addEventListener('click', resetFps);
+new ResizeObserver(resizeFps).observe(fpsShell);
+resizeFps();
+loadIsland();
+
+function animateFps() {
+  const delta = Math.min(fpsClock.getDelta(), .05);
+  if (fpsReady && document.pointerLockElement === fpsCanvas && !fpsWon) movePlayer(delta);
+  updateFpsHud();
+  fpsRenderer.render(fpsScene, fpsCamera);
+  requestAnimationFrame(animateFps);
+}
+requestAnimationFrame(animateFps);
 
 document.getElementById('rsvp-form').addEventListener('submit', event => { event.preventDefault(); const name = document.getElementById('guest-name').value.trim(); const answer = document.getElementById('guest-answer').value; localStorage.setItem('lira-rsvp', JSON.stringify({ name, answer })); document.getElementById('rsvp-slot').innerHTML = `<div class="success" role="status"><b>¡Embarque confirmado, ${name.replace(/[<>]/g, '')}! ⚓</b><span>Tu respuesta ha quedado guardada en este dispositivo.</span><button id="change-rsvp">Cambiar respuesta</button></div>`; document.getElementById('change-rsvp').addEventListener('click', () => window.location.reload()); });
 document.getElementById('back-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
