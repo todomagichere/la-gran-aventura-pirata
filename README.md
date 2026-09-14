@@ -13,33 +13,9 @@ Desde la carpeta del repositorio, construye e inicia el portal:
 docker compose up --build
 ```
 
-Puedes confirmar que Docker está sirviendo la revisión actual visitando
-<http://localhost:4173/portal-version.txt>. Debe mostrar:
-
-```text
-la-isla-de-lira-v4-estilos-integrados
-```
-
 Cuando aparezca el mensaje indicando que Nginx está listo, abre:
 
 <http://localhost:4173>
-
-Si ya habías construido una versión anterior y el navegador conserva recursos en
-caché, reconstruye el contenedor y fuerza una recarga de la página:
-
-```bash
-docker compose down
-docker compose build --no-cache --pull
-docker compose up --force-recreate
-```
-
-Después utiliza `Ctrl+Shift+R` (Windows/Linux) o `Cmd+Shift+R` (macOS) en el
-navegador.
-
-Los estilos principales están incluidos directamente en `index.html`, por lo que
-el diseño funciona incluso si no hay conexión a Internet. La conexión externa se
-utiliza únicamente para mejorar las tipografías; si no está disponible, el portal
-usa automáticamente una tipografía del sistema.
 
 Para detener el portal, pulsa `Ctrl+C`. Después puedes eliminar el contenedor con:
 

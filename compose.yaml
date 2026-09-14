@@ -1,6 +1,5 @@
 services:
   portal-pirata:
-    image: portal-pirata:lira-v4
     build:
       context: .
     ports:
