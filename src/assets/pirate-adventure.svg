@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-labelledby="title desc">
+  <title id="title">Aventura pirata de Lira</title>
+  <desc id="desc">Un alegre barco pirata navega hacia una isla tropical con un cofre del tesoro.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#65cbd2"/><stop offset="1" stop-color="#bce4d7"/></linearGradient>
+    <linearGradient id="sea" x2="0" y2="1"><stop stop-color="#087b87"/><stop offset="1" stop-color="#034b62"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="8" dy="10" stdDeviation="6" flood-color="#063747" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="900" height="430" fill="url(#sky)"/><rect y="430" width="900" height="270" fill="url(#sea)"/>
+  <circle cx="710" cy="125" r="70" fill="#ffd35c"/><circle cx="710" cy="125" r="90" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="16"/>
+  <g fill="#fff9e7" opacity=".9"><path d="M80 150c20-48 76-33 82 3 25-28 72-4 67 29H50c-4-22 10-34 30-32z"/><path d="M680 270c18-40 66-28 73 2 23-26 64-2 58 27H652c-3-19 10-30 28-29z"/></g>
+  <g filter="url(#shadow)">
+    <path d="M610 433q110-78 238 5l-18 41H607z" fill="#edc36b"/>
+    <path d="M749 412q-4-112 49-167-30 85-22 169z" fill="#6b3b24"/>
+    <path d="M780 278q55-72 104-27-59 3-92 52zM775 279q-20-86-77-77 50 28 69 87zM782 292q70-31 97 12-53-18-94 5z" fill="#16714f"/>
+    <g transform="translate(760 400)"><rect width="94" height="58" rx="6" fill="#8f462d"/><path d="M0 25h94v15H0z" fill="#e5a72a"/><path d="M37 20h20v30H37z" fill="#ffd24d"/><path d="M8 0q39-47 78 0" fill="#ad5735" stroke="#e5a72a" stroke-width="7"/></g>
+  </g>
+  <g transform="translate(95 170)" filter="url(#shadow)">
+    <path d="M40 310h390l-62 123H118z" fill="#9a482b" stroke="#5f301f" stroke-width="9"/><path d="M68 333h335" stroke="#d87a3d" stroke-width="10"/>
+    <circle cx="151" cy="361" r="16" fill="#ffd15a" stroke="#62301d" stroke-width="8"/><circle cx="241" cy="361" r="16" fill="#ffd15a" stroke="#62301d" stroke-width="8"/><circle cx="331" cy="361" r="16" fill="#ffd15a" stroke="#62301d" stroke-width="8"/>
+    <path d="M235 20v305" stroke="#62351f" stroke-width="13"/>
+    <path d="M225 46Q94 72 82 257q75 17 143 3z" fill="#fff1c9" stroke="#d9b878" stroke-width="6"/><path d="M249 66q119 42 128 171-58 22-128 18z" fill="#f7dfad" stroke="#d9b878" stroke-width="6"/>
+    <g transform="translate(145 126)"><circle cx="45" cy="45" r="38" fill="#063747"/><path d="M20 30l50 33M70 30L20 63" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="45" cy="17" r="15" fill="#fff"/></g>
+    <path d="M243 28q82-16 127 20-49 9-127 4z" fill="#e95f37"/><path d="M430 397q60 15 108-2M-20 430q61-22 120 0" fill="none" stroke="#8cdddd" stroke-width="18" stroke-linecap="round"/>
+    <g transform="translate(270 267)"><circle cx="25" cy="20" r="20" fill="#ed9d74"/><path d="M7 14q19-25 39 0" fill="#e95f37"/><path d="M8 42h38v48H8z" fill="#f3b42b"/><circle cx="18" cy="19" r="3"/><circle cx="34" cy="19" r="3"/><path d="M20 29q7 6 13 0" fill="none" stroke="#713a2d" stroke-width="2"/></g>
+  </g>
+  <g fill="none" stroke="#80d7d8" stroke-width="12" stroke-linecap="round" opacity=".75"><path d="M0 590q65-35 130 0t130 0 130 0 130 0 130 0 130 0 130 0"/><path d="M-30 650q65-35 130 0t130 0 130 0 130 0 130 0 130 0 130 0"/></g>
+  <g transform="translate(590 65) rotate(-8)"><path d="M0 0h150v58H0z" fill="#fff4d6" stroke="#b97935" stroke-width="5"/><text x="75" y="25" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="15" fill="#0a5966">¡RUMBO A LA</text><text x="75" y="46" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="19" fill="#df6336">FIESTA!</text></g>
+</svg>
