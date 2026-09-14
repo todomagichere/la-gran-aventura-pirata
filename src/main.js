@@ -189,6 +189,52 @@ function normaliseAngle(angle) {
   return Math.atan2(Math.sin(angle), Math.cos(angle));
 }
 
+function getSpriteRaster(image) {
+  if (image.raster) return image.raster;
+  const source = document.createElement('canvas');
+  source.width = image.naturalWidth;
+  source.height = image.naturalHeight;
+  const sourceCtx = source.getContext('2d', { willReadFrequently: true });
+  sourceCtx.drawImage(image, 0, 0);
+  const pixels = sourceCtx.getImageData(0, 0, source.width, source.height);
+  const cornerIndexes = [0, source.width - 1, (source.height - 1) * source.width, source.width * source.height - 1];
+  const backdrop = [0, 1, 2].map(channel => Math.round(cornerIndexes.reduce((sum, index) => sum + pixels.data[index * 4 + channel], 0) / cornerIndexes.length));
+  let left = source.width, top = source.height, right = 0, bottom = 0;
+
+  for (let y = 0; y < source.height; y += 1) {
+    for (let x = 0; x < source.width; x += 1) {
+      const offset = (y * source.width + x) * 4;
+      const distance = Math.hypot(
+        pixels.data[offset] - backdrop[0],
+        pixels.data[offset + 1] - backdrop[1],
+        pixels.data[offset + 2] - backdrop[2]
+      );
+      if (distance < 28) pixels.data[offset + 3] = Math.round(pixels.data[offset + 3] * distance / 28);
+      if (pixels.data[offset + 3] > 28) {
+        left = Math.min(left, x);
+        top = Math.min(top, y);
+        right = Math.max(right, x);
+        bottom = Math.max(bottom, y);
+      }
+    }
+  }
+
+  sourceCtx.putImageData(pixels, 0, 0);
+  const padding = 2;
+  const cropLeft = Math.max(0, left - padding);
+  const cropTop = Math.max(0, top - padding);
+  const cropRight = Math.min(source.width - 1, right + padding);
+  const cropBottom = Math.min(source.height - 1, bottom + padding);
+  const width = Math.max(1, cropRight - cropLeft + 1);
+  const height = Math.max(1, cropBottom - cropTop + 1);
+  const raster = document.createElement('canvas');
+  raster.width = width;
+  raster.height = height;
+  raster.getContext('2d').drawImage(source, cropLeft, cropTop, width, height, 0, 0, width, height);
+  image.raster = raster;
+  return raster;
+}
+
 function drawFpsSprites() {
   const w = fpsCanvas.width;
   const h = fpsCanvas.height;
@@ -201,19 +247,20 @@ function drawFpsSprites() {
   visibleSprites.forEach(sprite => {
     const image = fpsImages[sprite.type];
     const meta = spriteMeta[sprite.type];
-    if (!image?.complete) return;
+    if (!image?.complete || !image.naturalWidth) return;
+    const raster = getSpriteRaster(image);
     const angle = normaliseAngle(Math.atan2(sprite.y - player.y, sprite.x - player.x) - player.angle);
     if (Math.abs(angle) > fov * .7) return;
     const centerX = (angle / fov + .5) * w;
     const spriteHeight = Math.min(h * 1.35, h * meta.scale / sprite.distance);
-    const spriteWidth = spriteHeight * (image.naturalWidth / image.naturalHeight);
+    const spriteWidth = spriteHeight * (raster.width / raster.height);
     const left = centerX - spriteWidth / 2;
     const groundY = h * .55 + h * .24 / Math.max(sprite.distance, .8);
     const top = groundY - spriteHeight;
     const sampleX = Math.max(0, Math.min(w - 1, Math.floor(centerX)));
     if (sprite.distance > fpsDepth[sampleX] + .3) return;
     fpsCtx.globalAlpha = Math.max(.35, 1 - sprite.distance / 18);
-    fpsCtx.drawImage(image, left, top, spriteWidth, spriteHeight);
+    fpsCtx.drawImage(raster, left, top, spriteWidth, spriteHeight);
     fpsCtx.globalAlpha = 1;
   });
 }
