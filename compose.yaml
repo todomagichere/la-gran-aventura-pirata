@@ -4,4 +4,7 @@ services:
       context: .
     ports:
       - "4173:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./src:/usr/share/nginx/html/src:ro
     restart: unless-stopped

@@ -421,7 +421,7 @@ fpsRenderer.outputColorSpace = THREE.SRGBColorSpace;
 fpsRenderer.toneMapping = THREE.ACESFilmicToneMapping;
 fpsRenderer.toneMappingExposure = 1.15;
 fpsScene.background = new THREE.Color('#78c9d5');
-fpsScene.fog = new THREE.FogExp2('#78c9d5', .008);
+fpsScene.fog = new THREE.FogExp2('#78c9d5', .0055);
 fpsCamera.rotation.order = 'YXZ';
 fpsScene.add(fpsCamera);
 
@@ -431,10 +431,10 @@ const sun = new THREE.DirectionalLight('#fff1be', 3.2);
 sun.position.set(-18, 28, 12);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.left = -120;
-sun.shadow.camera.right = 120;
-sun.shadow.camera.top = 120;
-sun.shadow.camera.bottom = -120;
+sun.shadow.camera.left = -180;
+sun.shadow.camera.right = 180;
+sun.shadow.camera.top = 180;
+sun.shadow.camera.bottom = -180;
 fpsScene.add(sun);
 
 function setOverlay(title, text, visible = true) {
@@ -570,8 +570,8 @@ function createPalmTree(height, lean = 0) {
 
 function createTerrainRing(center, baseY, modelSize) {
   const innerRadius = Math.max(modelSize.x, modelSize.z) * .48;
-  const outerRadius = innerRadius * 3.2;
-  const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 96, 12);
+  const outerRadius = innerRadius * 4.1;
+  const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128, 18);
   geometry.rotateX(-Math.PI / 2);
   const position = geometry.getAttribute('position');
   const colors = new Float32Array(position.count * 3);
@@ -581,11 +581,13 @@ function createTerrainRing(center, baseY, modelSize) {
     const z = position.getZ(index);
     const radius = Math.hypot(x, z);
     const blend = (radius - innerRadius) / (outerRadius - innerRadius);
-    const waves = Math.sin(x * .22) * Math.cos(z * .18) * .18 + Math.sin((x + z) * .37) * .08;
-    position.setY(index, baseY + waves * (1 - blend) - blend * .42);
-    if (blend < .28) color.set('#caa85a');
-    else if (blend < .72) color.set('#759353');
-    else color.set('#d6bd73');
+    const waves = Math.sin(x * .13) * Math.cos(z * .11) * .82 + Math.sin((x + z) * .19) * .38;
+    const ridge = Math.max(0, Math.sin(x * .06 - z * .08 + 1.5)) * (1 - blend) * 1.45;
+    position.setY(index, baseY + waves * (1 - blend * .35) + ridge - blend * .92);
+    if (blend < .18) color.set('#d8b966');
+    else if (blend < .68) color.set('#6f9252');
+    else if (blend < .87) color.set('#b7aa5e');
+    else color.set('#d9c478');
     colors.set([color.r, color.g, color.b], index * 3);
   }
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -600,9 +602,10 @@ function loadIsland() {
   const loader = new GLTFLoader();
   loader.load('/src/assets/island/treasure-island.glb', gltf => {
     islandRoot = gltf.scene;
+    islandRoot.getObjectByName('sea')?.removeFromParent();
     const sourceBounds = new THREE.Box3().setFromObject(islandRoot);
     const sourceSize = sourceBounds.getSize(new THREE.Vector3());
-    islandRoot.scale.setScalar(60 / Math.max(sourceSize.x, sourceSize.z));
+    islandRoot.scale.setScalar(76 / Math.max(sourceSize.x, sourceSize.z));
     islandRoot.updateMatrixWorld(true);
     islandRoot.traverse(node => {
       if (!node.isMesh) return;
@@ -638,14 +641,18 @@ function loadIsland() {
       [-.32, -.12, 7.4, -.16], [-.1, .23, 8.5, .1], [.22, -.18, 7.8, -.12],
       [.3, .17, 7.1, .18], [.04, -.34, 7.6, -.08], [-.28, .28, 7.2, .14],
       [-1.08, -.48, 9.2, -.12], [.92, -.62, 8.8, .16], [.78, .66, 9.4, -.18],
-      [-.88, .72, 8.6, .11], [.12, 1.04, 7.9, -.09], [-.18, -1.12, 8.2, .15]
+      [-.88, .72, 8.6, .11], [.12, 1.04, 7.9, -.09], [-.18, -1.12, 8.2, .15],
+      [-1.72, -.92, 10.8, -.14], [1.58, -.98, 11.5, .12], [1.64, .96, 10.3, -.18],
+      [-1.55, 1.2, 9.8, .1], [.36, 1.86, 11.2, -.11], [-.54, -1.84, 10.7, .16],
+      [2.15, -.16, 9.6, -.09], [-2.1, .18, 10.1, .13]
     ].forEach(([x, z, height, lean]) => addPalm(x, z, height, lean));
+    const waterInnerRadius = Math.max(islandSize.x, islandSize.z) * .52;
     const water = new THREE.Mesh(
-      new THREE.PlaneGeometry(islandSize.x * 7, islandSize.z * 7),
+      new THREE.RingGeometry(waterInnerRadius, waterInnerRadius * 4.5, 144, 8),
       new THREE.MeshPhysicalMaterial({ color: '#087b9a', roughness: .22, metalness: .18, transparent: true, opacity: .88 })
     );
     water.rotation.x = -Math.PI / 2;
-    water.position.set(center.x, islandBounds.min.y - .08, center.z);
+    water.position.set(center.x, islandBounds.min.y - .45, center.z);
     water.receiveShadow = true;
     fpsScene.add(water);
 
