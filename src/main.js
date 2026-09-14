@@ -1,6 +1,8 @@
 const root = document.getElementById('root');
 
 root.innerHTML = `
+  <audio id="theme-audio" src="/src/assets/monkey_island_main_theme.mp3" loop preload="auto"></audio>
+  <button class="audio-toggle" id="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false" title="Activar música">🔇</button>
   <header><a class="brand" href="#inicio"><span>⚓</span><div>LA ISLA DE <b>LIRA</b></div></a><nav><a href="#aventura">La aventura</a><a href="#mapa">Mapa del tesoro</a><a href="#juegos">Juegos piratas</a><a href="#confirmar" class="nav-cta">CONFIRMAR</a></nav></header>
   <main>
     <section class="hero" id="inicio"><div class="hero-copy"><div class="badge"><span>✦</span> MENSAJE EN UNA BOTELLA <span>✦</span></div><p class="script">¡Atención, grumetes!</p><h1>RUMBO A LOS<br><em>7 AÑOS</em> DE LIRA</h1><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 17:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
@@ -16,6 +18,41 @@ root.innerHTML = `
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
   <footer><a class="brand" href="#inicio"><span>⚓</span><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top">VOLVER ARRIBA ↑</button></footer>`;
+
+const themeAudio = document.getElementById('theme-audio');
+const audioToggle = document.getElementById('audio-toggle');
+let musicEnabled = localStorage.getItem('lira-theme-audio') !== 'off';
+
+function syncAudioToggle() {
+  const playing = !themeAudio.paused;
+  audioToggle.textContent = playing ? '🔊' : '🔇';
+  audioToggle.setAttribute('aria-pressed', String(playing));
+  audioToggle.setAttribute('aria-label', playing ? 'Silenciar música' : 'Activar música');
+  audioToggle.title = playing ? 'Silenciar música' : 'Activar música';
+}
+
+async function playTheme() {
+  if (!musicEnabled) return;
+  try {
+    await themeAudio.play();
+  } catch {
+    // El navegador pedirá una interacción del visitante antes de reproducir sonido.
+  }
+  syncAudioToggle();
+}
+
+audioToggle.addEventListener('click', () => {
+  musicEnabled = themeAudio.paused;
+  localStorage.setItem('lira-theme-audio', musicEnabled ? 'on' : 'off');
+  if (musicEnabled) playTheme();
+  else themeAudio.pause();
+  syncAudioToggle();
+});
+themeAudio.addEventListener('play', syncAudioToggle);
+themeAudio.addEventListener('pause', syncAudioToggle);
+document.addEventListener('pointerdown', () => playTheme(), { once: true });
+syncAudioToggle();
+playTheme();
 
 const icons = ['⚓', '🦜', '🏴‍☠️', '💎', '⚓', '🦜', '🏴‍☠️', '💎'];
 let deck = [], open = [], matched = [];
