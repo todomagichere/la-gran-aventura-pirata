@@ -1,30 +1,81 @@
-import * as THREE from '/src/vendor/three.module.js';
-import { GLTFLoader } from '/src/vendor/GLTFLoader.js';
 
 const root = document.getElementById('root');
 
 root.innerHTML = `
-  <audio id="theme-audio" src="/src/assets/monkey_island_main_theme.mp3" loop preload="auto"></audio>
+  <audio id="theme-audio" src="/src/assets/monkey_island_main_theme.mp3" loop preload="auto" playsinline></audio>
+  <section class="welcome-curtain" id="welcome-curtain" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-curtain__panel welcome-curtain__panel--left" aria-hidden="true"></div>
+    <div class="welcome-curtain__panel welcome-curtain__panel--right" aria-hidden="true"></div>
+    <div class="welcome-curtain__message"><span aria-hidden="true">☠</span><p>MENSAJE PARA LA TRIPULACIÓN</p><h1 id="welcome-title">¡BIENVENIDOS A<br>LA ISLA DE LIRA!</h1><button id="welcome-continue" type="button">HAZ CLIC PARA CONTINUAR <b aria-hidden="true">→</b></button></div>
+  </section>
   <button class="audio-toggle" id="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false" title="Activar música">🔇</button>
-  <header><a class="brand" href="#inicio"><span>⚓</span><div>LA ISLA DE <b>LIRA</b></div></a><nav><a href="#aventura">La aventura</a><a href="#mapa">Mapa del tesoro</a><a href="#juegos">Juegos piratas</a><a href="#confirmar" class="nav-cta">CONFIRMAR</a></nav></header>
+  <header><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><nav><a href="#aventura">Bitácora</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
   <main>
-    <section class="hero" id="inicio"><div class="hero-copy"><div class="badge"><span>✦</span> MENSAJE EN UNA BOTELLA <span>✦</span></div><p class="script">¡Atención, grumetes!</p><h1>RUMBO A LOS<br><em>7 AÑOS</em> DE LIRA</h1><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 17:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
-      <div class="scene"><img src="/src/assets/pirate-adventure.svg" alt="Un alegre barco pirata navega hacia una isla tropical con un cofre del tesoro." /></div>
+    <section class="hero" id="inicio"><div class="hero-copy"><h1>RUMBO A LOS <em>7 AÑOS</em> DE LIRA</h1></div>
+      <div class="scene"><img src="/src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 17:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
     </section>
-    <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que<br>hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, merienda y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>MERIENDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
-    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><i>🏠</i><b>··············</b><i>🌴</i><b>··············</b><i>✕</i></div><p>EL LUGAR SECRETO</p><h2>La Isla del Tesoro</h2><p>Pronto la Capitana enviará las coordenadas exactas<br>a todos los grumetes confirmados.</p></div></section>
-    <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Supera estos retos antes de subir a bordo. ¡Que comience la aventura!</p><div class="game-layout">
-      <div class="game-card"><div class="game-title"><span class="game-icon">🧭</span><div><p>JUEGO DE MEMORIA</p><h3>Parejas del océano</h3></div></div><div class="memory" id="memory"></div><div class="game-footer"><small id="memory-status">0 de 4 parejas encontradas</small><button id="memory-reset">Jugar de nuevo ↻</button></div></div>
-      <div class="game-card"><div class="game-title"><span class="game-icon">🗺️</span><div><p>BUSCA EL TESORO</p><h3>¿Dónde está el cofre?</h3></div></div><p class="hint">Elige un lugar de la isla y excava. ¡Solo una X esconde el tesoro!</p><div class="dig-grid" id="dig-grid"></div><div class="game-footer"><small id="treasure-status">Toca una X para excavar</small><button id="treasure-reset">Nueva isla ↻</button></div></div>
-      <div class="game-card fps-card"><div class="game-title"><span class="game-icon">🏝️</span><div><p>WALK SIMULATOR 3D</p><h3>La cala del tesoro</h3></div></div><div class="fps-shell"><canvas id="fps-canvas" width="960" height="540" tabindex="0" aria-label="Juego en primera persona para encontrar un tesoro en una isla"></canvas><div class="fps-overlay" id="fps-overlay"><b>Cargando la isla…</b><span>Preparando el mapa del tesoro</span></div><div class="fps-hud"><span id="fps-status">La isla se está preparando</span><span>W adelante · A izquierda · S atrás · D derecha</span></div></div><div class="game-footer"><small id="fps-distance">Espacio para saltar · explora la isla y encuentra el cofre.</small><button id="fps-reset">Volver al muelle ↻</button></div></div>
-    </div></section>
+    <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que<br>hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
+    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img src="/src/assets/ruta-casa.webp" alt="Casa de salida"><b>··············</b><img src="/src/assets/ruta-isla.webp" alt="Isla del tesoro"><b>··············</b><img src="/src/assets/ruta-tesoro-x.webp" alt="Marca X del tesoro"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><small class="map-context">Destino en Castellbisbal · vista con Terrassa</small><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA <span>↗</span></a></div></section>
+    <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
+      <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
+      <article class="game-card mini-game" data-game="coins"><div class="game-title"><span class="game-icon">💰</span><div><p>ATRAPA MONEDAS</p><h3>El cofre veloz</h3></div></div><p class="hint">Mueve el cofre con el ratón, el dedo o las flechas. Atrapa oro y evita las botas.</p><button class="game-start" data-start="coins">JUGAR</button><div class="coin-field" id="coin-field" hidden tabindex="0" aria-label="Atrapa las monedas con las flechas izquierda y derecha"><span class="catcher" id="catcher" aria-hidden="true"><img src="/src/assets/cofre-pirata-realista.png" alt=""></span></div><div class="game-footer"><small id="coins-status">45 segundos · 0 monedas</small><button class="game-replay" data-replay="coins" hidden>Jugar otra vez ↻</button></div></article>
+      <article class="game-card mini-game memory-game" data-game="memory"><div class="game-title"><span class="game-icon">🧭</span><div><p>MEMORIA PIRATA</p><h3>Parejas del océano</h3></div></div><p class="hint">Da la vuelta a dos cartas y encuentra las 8 parejas.</p><button class="game-start" data-start="memory">JUGAR</button><div class="memory" id="memory" hidden></div><div class="game-footer"><small id="memory-status">8 parejas por encontrar</small><button class="game-replay" data-replay="memory" hidden>Jugar otra vez ↻</button></div></article>
+    </div><div class="game-roster"><p class="eyebrow">PRÓXIMAS AVENTURAS</p><div><article>🧩<b>Puzzle pirata</b><span>6–12 piezas</span></article><article>🦜<b>Sigue al loro</b><span>Repite la secuencia</span></article><article>🚢<b>Ordena el barco</b><span>Arrastra las piezas</span></article><article>🎯<b>Diana del capitán</b><span>Apunta a barriles</span></article><article>🧹<b>Limpia la cubierta</b><span>Ordena y clasifica</span></article><article>🔎<b>Las diferencias</b><span>Encuentra 5 cambios</span></article><article>✕<b>Ruta del tesoro</b><span>Sigue el camino</span></article></div></div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
-  <footer><a class="brand" href="#inicio"><span>⚓</span><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top">VOLVER ARRIBA ↑</button></footer>`;
+  <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button></footer>`;
+
+
+console.log(String.raw`
+                 __..-----')
+       ,.--._ .-'_..--...-'
+      '-"'. _/_ /  ..--''""'-.
+      _.--""...:._:(_ ..:"::. \
+   .-' ..::--""_(##)#)"':. \ \)    \ _|_ /
+  /_:-:'/  :__(##)##)    ): )   '-./'   '\.-'
+  "  / |  :' :/""\///)  /:.'    --(       )--
+    / :( :( :(   (#//)  "       .-'\.___./'-.
+   / :/|\ :\_:\   \#//\            /  |  \
+   |:/ | ""--':\   (#//)              '
+   \/  \ :|  \ :\  (#//)
+        \:\   '.':. \#//\
+         ':|    "--'(#///)
+                    (#///)
+                    (#///)         ___/""\
+                     \#///\           oo##
+                     (##///)         \`-6 #
+                     (##///)          ,.'
+                     (##///)         // .\
+                     (##///)        ||o   \\
+                      \##///\        \-+--//
+                      (###///)       :_|_(/
+                      (sjw////)__...--:: :...__
+                      (#/::'''        :: :     ""--.._
+                 __..-'''           __;: :            "-._
+         __..--""                  \`---/ ;                '._
+___..--""                             \`-'                    "-..___
+  (_ ""---....___                                     __...--"" _)
+    """--...  ___"""""-----......._______......----"""     --"""
+                  """"       ---.....   ___....----
+`);
+
+console.log('%cNo habrás perdido una botella de ron por aquí, verdad?', 'color: #f2b735; font-size: 14px; font-weight: bold;');
 
 const themeAudio = document.getElementById('theme-audio');
 const audioToggle = document.getElementById('audio-toggle');
-let musicEnabled = localStorage.getItem('lira-theme-audio') !== 'off';
+const welcomeCurtain = document.getElementById('welcome-curtain');
+const welcomeContinue = document.getElementById('welcome-continue');
+const welcomeSeenKey = 'lira-welcome-seen';
+const welcomeWasSeen = localStorage.getItem(welcomeSeenKey) === 'yes';
+let musicEnabled = false;
+let themeHasPlayed = false;
+themeAudio.volume = 0.42;
+if (welcomeWasSeen) {
+  welcomeCurtain.remove();
+  localStorage.setItem('lira-theme-audio', 'off');
+} else {
+  document.body.classList.add('intro-active');
+}
 
 function syncAudioToggle() {
   const playing = !themeAudio.paused;
@@ -51,715 +102,258 @@ audioToggle.addEventListener('click', () => {
   else themeAudio.pause();
   syncAudioToggle();
 });
-themeAudio.addEventListener('play', syncAudioToggle);
+themeAudio.addEventListener('play', () => {
+  themeHasPlayed = true;
+  syncAudioToggle();
+});
 themeAudio.addEventListener('pause', syncAudioToggle);
-document.addEventListener('pointerdown', () => playTheme(), { once: true });
+themeAudio.addEventListener('canplay', playTheme, { once: true });
+window.addEventListener('load', playTheme, { once: true });
+['pointerdown', 'touchstart', 'keydown'].forEach(eventName => {
+  document.addEventListener(eventName, () => playTheme(), { once: true, passive: eventName !== 'keydown' });
+});
+window.addEventListener('scroll', () => {
+  if (!themeHasPlayed) playTheme();
+}, { passive: true });
+welcomeContinue.addEventListener('click', () => {
+  welcomeCurtain.classList.add('is-opening');
+  document.body.classList.remove('intro-active');
+  localStorage.setItem(welcomeSeenKey, 'yes');
+  musicEnabled = true;
+  localStorage.setItem('lira-theme-audio', 'on');
+  playTheme();
+  setTimeout(() => welcomeCurtain.remove(), 1900);
+});
 syncAudioToggle();
 playTheme();
+if (!welcomeWasSeen) welcomeContinue.focus();
 
-const icons = ['⚓', '🦜', '🏴‍☠️', '💎', '⚓', '🦜', '🏴‍☠️', '💎'];
-let deck = [], open = [], matched = [];
+const progressKey = 'lira-mini-game-progress';
+const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
 const shuffle = list => [...list].sort(() => Math.random() - 0.5);
+const gameCards = Object.fromEntries([...document.querySelectorAll('.mini-game')].map(card => [card.dataset.game, card]));
+
+function updateProgress() {
+  const total = Object.keys(progress).length;
+  document.getElementById('coin-total').textContent = total;
+  document.getElementById('progress-message').textContent = total === 0 ? 'Completa un juego para ganar tu primera moneda.' : total >= 3 ? '¡Buen trabajo, grumete! Has reunido un gran botín.' : '¡Buen trabajo, grumete! Sigue reuniendo monedas.';
+}
+
+function winGame(game, message) {
+  if (!progress[game]) {
+    progress[game] = true;
+    localStorage.setItem(progressKey, JSON.stringify(progress));
+  }
+  updateProgress();
+  gameCards[game].querySelector('.game-replay').hidden = false;
+  gameCards[game].querySelector('.game-start').hidden = true;
+  gameCards[game].querySelector('.game-footer small').textContent = `${message} 🪙`;
+}
+
+let activeStage;
+function openGameStage(game) {
+  if (activeStage) return;
+  const card = gameCards[game];
+  const marker = document.createComment(`mini-game-${game}`);
+  card.parentNode.insertBefore(marker, card);
+  const stage = document.createElement('section');
+  stage.className = 'game-stage';
+  stage.setAttribute('role', 'dialog');
+  stage.setAttribute('aria-modal', 'true');
+  stage.setAttribute('aria-label', `Jugando a ${card.querySelector('h3').textContent}`);
+  stage.innerHTML = `<div class="game-stage__curtain game-stage__curtain--left"></div><div class="game-stage__curtain game-stage__curtain--right"></div><div class="game-stage__content"><button class="stage-close" type="button" aria-label="Volver a minijuegos">← VOLVER A MINIJUEGOS</button><div class="game-stage__slot"></div></div>`;
+  document.body.append(stage);
+  stage.querySelector('.game-stage__slot').append(card);
+  const closeStage = () => {
+    if (!activeStage) return;
+    stage.classList.remove('is-open');
+    setTimeout(() => {
+      if (marker.parentNode) marker.replaceWith(card);
+      stage.remove();
+      activeStage = undefined;
+    }, 460);
+  };
+  stage.querySelector('.stage-close').addEventListener('click', closeStage);
+  stage.addEventListener('keydown', event => { if (event.key === 'Escape') closeStage(); });
+  activeStage = { stage, closeStage };
+  requestAnimationFrame(() => stage.classList.add('is-open'));
+}
+
+function beginGame(game) {
+  openGameStage(game);
+  const card = gameCards[game];
+  card.querySelector('.game-start').hidden = true;
+  card.querySelector('.game-replay').hidden = true;
+  if (game === 'treasure') startTreasure();
+  if (game === 'coins') startCoinCatch();
+  if (game === 'memory') startMemory();
+}
+
+document.addEventListener('click', event => {
+  const start = event.target.closest('[data-start]');
+  const replay = event.target.closest('[data-replay]');
+  if (start) beginGame(start.dataset.start);
+  if (replay) beginGame(replay.dataset.replay);
+});
+
+// Caza del tesoro: encuentra cinco objetos escondidos en una isla en menos de un minuto.
+let treasureTimer;
+function startTreasure() {
+  clearInterval(treasureTimer);
+  const scene = document.getElementById('treasure-scene');
+  const status = document.getElementById('treasure-status');
+  const treasures = ['💎', '🧭', '🗺️', '🪙', '🦜'];
+  let found = 0;
+  let seconds = 60;
+  scene.hidden = false;
+  scene.innerHTML = treasures.map((item, index) => `<button class="hidden-treasure" data-treasure="${index}" style="--x:${10 + Math.random() * 76}%;--y:${12 + Math.random() * 68}%" aria-label="Objeto escondido">${item}</button>`).join('');
+  status.textContent = `0 de 5 objetos · ${seconds} s`;
+  scene.onclick = event => {
+    const item = event.target.closest('[data-treasure]');
+    if (!item || item.classList.contains('found')) return;
+    item.classList.add('found');
+    found += 1;
+    if (found === treasures.length) {
+      clearInterval(treasureTimer);
+      winGame('treasure', '¡Encontraste los 5 objetos!');
+    } else status.textContent = `${found} de 5 objetos · ${seconds} s`;
+  };
+  treasureTimer = setInterval(() => {
+    seconds -= 1;
+    status.textContent = `${found} de 5 objetos · ${seconds} s`;
+    if (seconds <= 0) {
+      clearInterval(treasureTimer);
+      status.textContent = 'El tiempo se agotó. ¡Prueba de nuevo!';
+      gameCards.treasure.querySelector('.game-replay').hidden = false;
+    }
+  }, 1000);
+}
+
+// Atrapa monedas: el cofre se mueve con ratón, tacto o flechas.
+let coinTimer, coinSpawner, coinTimeouts = [], catcherPosition = 50;
+function clearCoinRound() {
+  clearInterval(coinTimer); clearInterval(coinSpawner);
+  coinTimeouts.forEach(clearTimeout); coinTimeouts = [];
+}
+function moveCatcher(position) {
+  catcherPosition = Math.max(6, Math.min(94, position));
+  document.getElementById('catcher').style.left = `${catcherPosition}%`;
+}
+
+function playCoinSound() {
+  if (!musicEnabled) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const context = new AudioContext();
+  const now = context.currentTime;
+  [880, 1320].forEach((frequency, index) => {
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = 'sine'; oscillator.frequency.value = frequency;
+    gain.gain.setValueAtTime(.0001, now + index * .045);
+    gain.gain.exponentialRampToValueAtTime(.12, now + index * .045 + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + index * .045 + .18);
+    oscillator.connect(gain).connect(context.destination);
+    oscillator.start(now + index * .045); oscillator.stop(now + index * .045 + .2);
+  });
+}
+function startCoinCatch() {
+  clearCoinRound();
+  const field = document.getElementById('coin-field');
+  const status = document.getElementById('coins-status');
+  let score = 0;
+  let seconds = 45;
+  field.hidden = false;
+  field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="/src/assets/cofre-pirata-realista.png" alt=""></span>';
+  moveCatcher(50);
+  field.focus({ preventScroll: true });
+  const setFromPointer = event => {
+    const bounds = field.getBoundingClientRect();
+    moveCatcher(((event.clientX - bounds.left) / bounds.width) * 100);
+  };
+  field.onpointermove = setFromPointer;
+  field.onkeydown = event => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      moveCatcher(catcherPosition + (event.key === 'ArrowLeft' ? -8 : 8));
+    }
+  };
+  const spawn = () => {
+    const isCoin = Math.random() > .28;
+    const left = 8 + Math.random() * 84;
+    const drop = document.createElement('span');
+    drop.className = `falling-item ${isCoin ? 'is-coin' : 'is-junk'}`;
+    drop.innerHTML = `<img src="/src/assets/${isCoin ? 'moneda-pirata-realista.png' : 'bota-pirata-realista.png'}" alt="">`;
+    drop.style.left = `${left}%`;
+    field.append(drop);
+    coinTimeouts.push(setTimeout(() => {
+      const caught = Math.abs(left - catcherPosition) < 11;
+      if (caught && isCoin) {
+        score += 1;
+        drop.classList.add('caught');
+        playCoinSound();
+        coinTimeouts.push(setTimeout(() => drop.remove(), 260));
+      } else {
+        if (caught) score = Math.max(0, score - 1);
+        drop.remove();
+      }
+      status.textContent = `${seconds} s · ${score} monedas`;
+    }, 1700));
+  };
+  spawn(); coinSpawner = setInterval(spawn, 780);
+  coinTimer = setInterval(() => {
+    seconds -= 1;
+    status.textContent = `${seconds} s · ${score} monedas`;
+    if (seconds <= 0) {
+      clearCoinRound();
+      if (score >= 8) winGame('coins', `¡Atrapaste ${score} monedas!`);
+      else {
+        status.textContent = `Conseguiste ${score} monedas. Necesitas 8 para ganar.`;
+        gameCards.coins.querySelector('.game-replay').hidden = false;
+      }
+    }
+  }, 1000);
+}
+
+// Memoria pirata: tablero 4 × 4 con ocho parejas.
+const memoryIcons = ['⚓', '🦜', '🏴‍☠️', '💎', '🗺️', '🪙', '⛵', '🧭'];
+let deck = [], open = [], matched = [], memoryLock = false;
 function renderMemory() {
   const board = document.getElementById('memory');
   board.innerHTML = deck.map(card => `<button data-id="${card.id}" aria-label="${open.includes(card.id) || matched.includes(card.icon) ? card.icon : 'Carta oculta'}" class="${open.includes(card.id) || matched.includes(card.icon) ? 'flipped' : ''}"><span>${open.includes(card.id) || matched.includes(card.icon) ? card.icon : '✦'}</span></button>`).join('');
-  document.getElementById('memory-status').textContent = matched.length === 4 ? '¡Tesoro encontrado! Eres un gran corsario.' : `${matched.length} de 4 parejas encontradas`;
+  document.getElementById('memory-status').textContent = `${matched.length} de 8 parejas encontradas`;
 }
-function resetMemory() { deck = shuffle(icons.map((icon, id) => ({ icon, id }))); open = []; matched = []; renderMemory(); }
+function startMemory() {
+  deck = shuffle([...memoryIcons, ...memoryIcons].map((icon, id) => ({ icon, id })));
+  open = []; matched = []; memoryLock = false;
+  document.getElementById('memory').hidden = false;
+  renderMemory();
+}
 document.getElementById('memory').addEventListener('click', event => {
-  const button = event.target.closest('button'); if (!button || open.length === 2) return;
+  const button = event.target.closest('button');
+  if (!button || memoryLock || open.length === 2) return;
   const id = Number(button.dataset.id), card = deck.find(item => item.id === id);
   if (open.includes(id) || matched.includes(card.icon)) return;
   open.push(id); renderMemory();
-  if (open.length === 2) { const pair = deck.filter(item => open.includes(item.id)); if (pair[0].icon === pair[1].icon) { matched.push(pair[0].icon); setTimeout(() => { open = []; renderMemory(); }, 450); } else setTimeout(() => { open = []; renderMemory(); }, 700); }
+  if (open.length !== 2) return;
+  const pair = deck.filter(item => open.includes(item.id));
+  memoryLock = true;
+  setTimeout(() => {
+    if (pair[0].icon === pair[1].icon) matched.push(pair[0].icon);
+    open = []; memoryLock = false; renderMemory();
+    if (matched.length === memoryIcons.length) winGame('memory', '¡Completaste todas las parejas!');
+  }, pair[0].icon === pair[1].icon ? 450 : 760);
 });
-document.getElementById('memory-reset').addEventListener('click', resetMemory); resetMemory();
-
-let treasure = Math.floor(Math.random() * 9), found = false;
-function renderTreasure() { document.getElementById('dig-grid').innerHTML = Array.from({ length: 9 }, (_, i) => `<button data-cell="${i}" aria-label="Excavar casilla ${i + 1}">${found && i === treasure ? '💰' : '✕'}</button>`).join(''); document.getElementById('treasure-status').textContent = found ? '¡Tesoro encontrado! ¡Buen trabajo!' : 'Toca una X para excavar'; }
-document.getElementById('dig-grid').addEventListener('click', event => { const button = event.target.closest('button'); if (button && Number(button.dataset.cell) === treasure) { found = true; renderTreasure(); } });
-document.getElementById('treasure-reset').addEventListener('click', () => { found = false; treasure = Math.floor(Math.random() * 9); renderTreasure(); }); renderTreasure();
-
-if (false) {
-const fpsCanvas = document.getElementById('fps-canvas');
-const fpsCtx = fpsCanvas.getContext('2d');
-const fpsShell = document.querySelector('.fps-shell');
-const fpsOverlay = document.getElementById('fps-overlay');
-const fpsStatus = document.getElementById('fps-status');
-const fpsDistance = document.getElementById('fps-distance');
-const islandMap = [
-  '################',
-  '#...l......b...#',
-  '#..o.....x.....#',
-  '#......p.......#',
-  '#.....##.......#',
-  '#..x..##..l....#',
-  '#..............#',
-  '#......p.i.o...#',
-  '#..............#',
-  '#...l..........#',
-  '#........##....#',
-  '#..o.....##....#',
-  '#..........x...#',
-  '#.......C......#',
-  '#...p..........#',
-  '################'
-];
-const spriteMeta = {
-  b: { src: '/src/assets/port/boat.png', scale: 1.65, label: 'barco' },
-  C: { src: '/src/assets/port/chest.png', scale: .78, label: 'cofre' },
-  l: { src: '/src/assets/port/lamp.png', scale: .86, label: 'farol' },
-  i: { src: '/src/assets/port/pillar.png', scale: 1.08, label: 'pilar' },
-  o: { src: '/src/assets/port/barrel.png', scale: .82, label: 'barril' },
-  p: { src: '/src/assets/port/platform.png', scale: .94, label: 'plataforma' },
-  x: { src: '/src/assets/port/box.png', scale: .82, label: 'caja' }
-};
-const fpsImages = Object.fromEntries(Object.entries(spriteMeta).map(([key, meta]) => {
-  const image = new Image();
-  image.src = meta.src;
-  return [key, image];
-}));
-const fpsSprites = islandMap.flatMap((row, y) => [...row].flatMap((cell, x) => spriteMeta[cell] ? [{ type: cell, x: x + .5, y: y + .5 }] : []));
-const fpsKeys = new Set();
-const playerStart = { x: 2.4, y: 13.2, angle: -0.72 };
-let player = { ...playerStart };
-let fpsWon = false;
-let showingMap = false;
-let lastFrame = performance.now();
-let fpsDepth = [];
-const treasureSpot = fpsSprites.find(sprite => sprite.type === 'C');
-
-function fpsCell(x, y) {
-  const row = islandMap[Math.floor(y)];
-  return row ? row[Math.floor(x)] || '#' : '#';
-}
-
-function isBlocked(x, y) {
-  const cell = fpsCell(x, y);
-  return cell === '#' || cell === 'b' || cell === 'i' || cell === 'o' || cell === 'x';
-}
-
-function resetFps() {
-  player = { ...playerStart };
-  fpsWon = false;
-  showingMap = false;
-  fpsKeys.clear();
-  fpsStatus.textContent = 'Busca el cofre escondido';
-  fpsOverlay.querySelector('b').textContent = 'Entrar en la cala';
-  fpsOverlay.querySelector('span').textContent = 'Clic para explorar';
-  fpsOverlay.classList.remove('hidden');
-  document.exitPointerLock?.();
-}
-
-function moveFps(dt) {
-  const speed = fpsKeys.has('shift') ? 4.4 : 2.8;
-  let forward = 0, side = 0;
-  if (fpsKeys.has('w')) forward += 1;
-  if (fpsKeys.has('s')) forward -= 1;
-  if (fpsKeys.has('d')) side += 1;
-  if (fpsKeys.has('a')) side -= 1;
-  const len = Math.hypot(forward, side) || 1;
-  const step = speed * dt;
-  const nextX = player.x + (Math.cos(player.angle) * forward / len + Math.cos(player.angle + Math.PI / 2) * side / len) * step;
-  const nextY = player.y + (Math.sin(player.angle) * forward / len + Math.sin(player.angle + Math.PI / 2) * side / len) * step;
-  if (!isBlocked(nextX, player.y)) player.x = nextX;
-  if (!isBlocked(player.x, nextY)) player.y = nextY;
-}
-
-function drawFpsBackground(w, h) {
-  const sky = fpsCtx.createLinearGradient(0, 0, 0, h * .55);
-  sky.addColorStop(0, '#64cbd2');
-  sky.addColorStop(1, '#d5f0df');
-  fpsCtx.fillStyle = sky;
-  fpsCtx.fillRect(0, 0, w, h * .55);
-  fpsCtx.fillStyle = '#ffd35c';
-  fpsCtx.beginPath();
-  fpsCtx.arc(w * .78, h * .18, 34, 0, Math.PI * 2);
-  fpsCtx.fill();
-  const sand = fpsCtx.createLinearGradient(0, h * .55, 0, h);
-  sand.addColorStop(0, '#e8c56e');
-  sand.addColorStop(1, '#9c7942');
-  fpsCtx.fillStyle = sand;
-  fpsCtx.fillRect(0, h * .55, w, h * .45);
-}
-
-function castRay(rayAngle) {
-  let distance = 0;
-  let hit = '.';
-  const step = .035;
-  while (distance < 16) {
-    distance += step;
-    const x = player.x + Math.cos(rayAngle) * distance;
-    const y = player.y + Math.sin(rayAngle) * distance;
-    hit = fpsCell(x, y);
-    if (hit === '#') break;
-  }
-  return { distance, hit };
-}
-
-function wallColor(shade) {
-  const [r, g, b] = [88, 72, 47];
-  return `rgb(${Math.max(0, r - shade)}, ${Math.max(0, g - shade)}, ${Math.max(0, b - shade)})`;
-}
-
-function drawFpsView() {
-  const w = fpsCanvas.width;
-  const h = fpsCanvas.height;
-  drawFpsBackground(w, h);
-  const fov = Math.PI / 3;
-  fpsDepth = new Array(w).fill(16);
-  for (let x = 0; x < w; x += 2) {
-    const ratio = x / w - .5;
-    const angle = player.angle + ratio * fov;
-    const ray = castRay(angle);
-    const corrected = ray.distance * Math.cos(angle - player.angle);
-    const wallHeight = Math.min(h, h / Math.max(corrected, .12));
-    const top = (h - wallHeight) / 2;
-    const shade = Math.min(95, corrected * 9);
-    fpsDepth[x] = corrected;
-    fpsDepth[x + 1] = corrected;
-    fpsCtx.fillStyle = wallColor(shade);
-    fpsCtx.fillRect(x, top, 2, wallHeight);
-  }
-  fpsCtx.fillStyle = 'rgba(255, 255, 255, .82)';
-  fpsCtx.fillRect(w / 2 - 13, h / 2, 26, 2);
-  fpsCtx.fillRect(w / 2, h / 2 - 13, 2, 26);
-}
-
-function normaliseAngle(angle) {
-  return Math.atan2(Math.sin(angle), Math.cos(angle));
-}
-
-function getSpriteRaster(image) {
-  if (image.raster) return image.raster;
-  const source = document.createElement('canvas');
-  source.width = image.naturalWidth;
-  source.height = image.naturalHeight;
-  const sourceCtx = source.getContext('2d', { willReadFrequently: true });
-  sourceCtx.drawImage(image, 0, 0);
-  const pixels = sourceCtx.getImageData(0, 0, source.width, source.height);
-  const cornerIndexes = [0, source.width - 1, (source.height - 1) * source.width, source.width * source.height - 1];
-  const backdrop = [0, 1, 2].map(channel => Math.round(cornerIndexes.reduce((sum, index) => sum + pixels.data[index * 4 + channel], 0) / cornerIndexes.length));
-  let left = source.width, top = source.height, right = 0, bottom = 0;
-
-  for (let y = 0; y < source.height; y += 1) {
-    for (let x = 0; x < source.width; x += 1) {
-      const offset = (y * source.width + x) * 4;
-      const distance = Math.hypot(
-        pixels.data[offset] - backdrop[0],
-        pixels.data[offset + 1] - backdrop[1],
-        pixels.data[offset + 2] - backdrop[2]
-      );
-      if (distance < 28) pixels.data[offset + 3] = Math.round(pixels.data[offset + 3] * distance / 28);
-      if (pixels.data[offset + 3] > 28) {
-        left = Math.min(left, x);
-        top = Math.min(top, y);
-        right = Math.max(right, x);
-        bottom = Math.max(bottom, y);
-      }
-    }
-  }
-
-  sourceCtx.putImageData(pixels, 0, 0);
-  const padding = 2;
-  const cropLeft = Math.max(0, left - padding);
-  const cropTop = Math.max(0, top - padding);
-  const cropRight = Math.min(source.width - 1, right + padding);
-  const cropBottom = Math.min(source.height - 1, bottom + padding);
-  const width = Math.max(1, cropRight - cropLeft + 1);
-  const height = Math.max(1, cropBottom - cropTop + 1);
-  const raster = document.createElement('canvas');
-  raster.width = width;
-  raster.height = height;
-  raster.getContext('2d').drawImage(source, cropLeft, cropTop, width, height, 0, 0, width, height);
-  image.raster = raster;
-  return raster;
-}
-
-function drawFpsSprites() {
-  const w = fpsCanvas.width;
-  const h = fpsCanvas.height;
-  const fov = Math.PI / 3;
-  const visibleSprites = fpsSprites
-    .map(sprite => ({ ...sprite, distance: Math.hypot(sprite.x - player.x, sprite.y - player.y) }))
-    .filter(sprite => sprite.distance > .2)
-    .sort((a, b) => b.distance - a.distance);
-
-  visibleSprites.forEach(sprite => {
-    const image = fpsImages[sprite.type];
-    const meta = spriteMeta[sprite.type];
-    if (!image?.complete || !image.naturalWidth) return;
-    const raster = getSpriteRaster(image);
-    const angle = normaliseAngle(Math.atan2(sprite.y - player.y, sprite.x - player.x) - player.angle);
-    if (Math.abs(angle) > fov * .7) return;
-    const centerX = (angle / fov + .5) * w;
-    const spriteHeight = Math.min(h * 1.35, h * meta.scale / sprite.distance);
-    const spriteWidth = spriteHeight * (raster.width / raster.height);
-    const left = centerX - spriteWidth / 2;
-    const groundY = h * .55 + h * .24 / Math.max(sprite.distance, .8);
-    const top = groundY - spriteHeight;
-    const sampleX = Math.max(0, Math.min(w - 1, Math.floor(centerX)));
-    if (sprite.distance > fpsDepth[sampleX] + .3) return;
-    fpsCtx.globalAlpha = Math.max(.35, 1 - sprite.distance / 18);
-    fpsCtx.drawImage(raster, left, top, spriteWidth, spriteHeight);
-    fpsCtx.globalAlpha = 1;
-  });
-}
-
-function drawFpsMap() {
-  const size = 176;
-  const pad = 18;
-  const cell = size / islandMap.length;
-  fpsCtx.save();
-  fpsCtx.globalAlpha = .96;
-  fpsCtx.fillStyle = '#f3dfb0';
-  fpsCtx.fillRect(pad, pad, size, size);
-  islandMap.forEach((row, y) => [...row].forEach((cellValue, x) => {
-    if (cellValue === '.') return;
-    fpsCtx.fillStyle = cellValue === 'C' ? '#d95f37' : cellValue === 'l' ? '#f2b735' : cellValue === 'i' ? '#ddd0b4' : cellValue === 'p' ? '#a67e43' : cellValue === 'b' ? '#0a6871' : cellValue === 'o' || cellValue === 'x' ? '#8f462d' : '#59482f';
-    fpsCtx.fillRect(pad + x * cell, pad + y * cell, cell - 1, cell - 1);
-  }));
-  fpsCtx.fillStyle = '#063747';
-  fpsCtx.beginPath();
-  fpsCtx.arc(pad + player.x * cell, pad + player.y * cell, 4, 0, Math.PI * 2);
-  fpsCtx.fill();
-  fpsCtx.strokeStyle = '#063747';
-  fpsCtx.lineWidth = 2;
-  fpsCtx.beginPath();
-  fpsCtx.moveTo(pad + player.x * cell, pad + player.y * cell);
-  fpsCtx.lineTo(pad + (player.x + Math.cos(player.angle) * .9) * cell, pad + (player.y + Math.sin(player.angle) * .9) * cell);
-  fpsCtx.stroke();
-  fpsCtx.restore();
-}
-
-function updateFpsHud() {
-  const distance = Math.hypot(player.x - treasureSpot.x, player.y - treasureSpot.y);
-  if (!fpsWon && distance < .72) {
-    fpsWon = true;
-    fpsStatus.textContent = '¡Tesoro encontrado!';
-    fpsOverlay.querySelector('b').textContent = '¡Botín conseguido!';
-    fpsOverlay.querySelector('span').textContent = 'Pulsa volver al muelle para repetir';
-    fpsOverlay.classList.remove('hidden');
-    document.exitPointerLock?.();
-  }
-  fpsDistance.textContent = fpsWon ? 'La capitana ya tiene su cofre.' : `El cofre está a ${distance.toFixed(1)} pasos.`;
-}
-
-function tickFps(now) {
-  const dt = Math.min(.05, (now - lastFrame) / 1000);
-  lastFrame = now;
-  if (document.pointerLockElement === fpsCanvas && !fpsWon) moveFps(dt);
-  drawFpsView();
-  drawFpsSprites();
-  if (showingMap || fpsWon) drawFpsMap();
-  updateFpsHud();
-  requestAnimationFrame(tickFps);
-}
-
-function enterFps() {
-  if (!fpsWon) {
-    fpsCanvas.requestPointerLock?.();
-    fpsCanvas.focus();
-  }
-}
-
-fpsShell.addEventListener('click', enterFps);
-fpsCanvas.addEventListener('click', enterFps);
-fpsOverlay.addEventListener('click', enterFps);
-document.addEventListener('pointerlockchange', () => fpsOverlay.classList.toggle('hidden', document.pointerLockElement === fpsCanvas && !fpsWon));
-document.addEventListener('mousemove', event => {
-  if (document.pointerLockElement === fpsCanvas && !fpsWon) player.angle += event.movementX * .0026;
-});
-document.addEventListener('keydown', event => {
-  const key = event.key.toLowerCase();
-  if (['e', 's', 'd', 'f', 'shift'].includes(key)) fpsKeys.add(key);
-  if (event.code === 'Space') {
-    showingMap = true;
-    if (document.pointerLockElement === fpsCanvas) event.preventDefault();
-  }
-});
-document.addEventListener('keyup', event => {
-  const key = event.key.toLowerCase();
-  fpsKeys.delete(key);
-  if (event.code === 'Space') showingMap = false;
-});
-document.getElementById('fps-reset').addEventListener('click', resetFps);
-requestAnimationFrame(tickFps);
-}
-
-const fpsCanvas = document.getElementById('fps-canvas');
-const fpsShell = document.querySelector('.fps-shell');
-const fpsOverlay = document.getElementById('fps-overlay');
-const fpsStatus = document.getElementById('fps-status');
-const fpsDistance = document.getElementById('fps-distance');
-const fpsKeys = new Set();
-const fpsRenderer = new THREE.WebGLRenderer({ canvas: fpsCanvas, antialias: true, powerPreference: 'high-performance' });
-const fpsScene = new THREE.Scene();
-const fpsCamera = new THREE.PerspectiveCamera(72, 16 / 9, .1, 240);
-const fpsClock = new THREE.Clock();
-const down = new THREE.Vector3(0, -1, 0);
-const walkDirection = new THREE.Vector3();
-const cameraForward = new THREE.Vector3();
-const cameraRight = new THREE.Vector3();
-const raycaster = new THREE.Raycaster();
-const palmColliders = [];
-const obstacleColliders = [];
-let islandRoot;
-let islandBounds;
-let islandSize;
-let spawnPoint;
-let treasurePoint;
-let groundLevel = 0;
-const groundMeshes = [];
-let yaw = Math.PI;
-let pitch = -.08;
-let fpsReady = false;
-let fpsWon = false;
-let verticalVelocity = 0;
-
-fpsRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-fpsRenderer.shadowMap.enabled = true;
-fpsRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-fpsRenderer.outputColorSpace = THREE.SRGBColorSpace;
-fpsRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-fpsRenderer.toneMappingExposure = 1.15;
-fpsScene.background = new THREE.Color('#78c9d5');
-fpsScene.fog = new THREE.FogExp2('#78c9d5', .0055);
-fpsCamera.rotation.order = 'YXZ';
-fpsScene.add(fpsCamera);
-
-const hemisphere = new THREE.HemisphereLight('#d8f6ff', '#8b6137', 2.25);
-fpsScene.add(hemisphere);
-const sun = new THREE.DirectionalLight('#fff1be', 3.2);
-sun.position.set(-18, 28, 12);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.left = -180;
-sun.shadow.camera.right = 180;
-sun.shadow.camera.top = 180;
-sun.shadow.camera.bottom = -180;
-fpsScene.add(sun);
-
-function setOverlay(title, text, visible = true) {
-  fpsOverlay.querySelector('b').textContent = title;
-  fpsOverlay.querySelector('span').textContent = text;
-  fpsOverlay.classList.toggle('hidden', !visible);
-}
-
-function setCameraRotation() {
-  fpsCamera.rotation.set(pitch, yaw, 0, 'YXZ');
-}
-
-function resizeFps() {
-  const width = fpsCanvas.clientWidth;
-  const height = fpsCanvas.clientHeight;
-  if (!width || !height) return;
-  fpsRenderer.setSize(width, height, false);
-  fpsCamera.aspect = width / height;
-  fpsCamera.updateProjectionMatrix();
-}
-
-function placePlayerAtSpawn() {
-  if (!spawnPoint || !treasurePoint) return;
-  fpsCamera.position.copy(spawnPoint);
-  groundLevel = spawnPoint.y;
-  const lookAt = treasurePoint.clone().setY(fpsCamera.position.y);
-  yaw = Math.atan2(fpsCamera.position.x - lookAt.x, fpsCamera.position.z - lookAt.z);
-  pitch = -.08;
-  verticalVelocity = 0;
-  setCameraRotation();
-}
-
-function terrainHeightAt(x, z) {
-  if (!groundMeshes.length || !islandBounds) return null;
-  raycaster.set(new THREE.Vector3(x, islandBounds.max.y + 40, z), down);
-  const hit = raycaster.intersectObjects(groundMeshes, false)[0];
-  return hit ? hit.point.y : null;
-}
-
-function hitsObstacle(position) {
-  const footHeight = groundLevel - 1.72;
-  return obstacleColliders.some(box => {
-    const closeX = position.x > box.min.x - .38 && position.x < box.max.x + .38;
-    const closeZ = position.z > box.min.z - .38 && position.z < box.max.z + .38;
-    return closeX && closeZ && box.min.y < footHeight + .5 && box.max.y > footHeight + .2;
-  });
-}
-
-function updateFpsHud() {
-  if (!treasurePoint) return;
-  const distance = fpsCamera.position.distanceTo(treasurePoint);
-  if (!fpsWon && distance < 2.25) {
-    fpsWon = true;
-    fpsStatus.textContent = '¡Tesoro encontrado!';
-    fpsDistance.textContent = 'La capitana ya tiene su cofre.';
-    document.exitPointerLock?.();
-    setOverlay('¡Botín conseguido!', 'Pulsa “volver al muelle” para repetir');
-    return;
-  }
-  fpsDistance.textContent = `El cofre está a ${distance.toFixed(1)} pasos.`;
-}
-
-function movePlayer(delta) {
-  let forward = 0;
-  let side = 0;
-  if (fpsKeys.has('e')) forward += 1;
-  if (fpsKeys.has('d')) forward -= 1;
-  if (fpsKeys.has('f')) side += 1;
-  if (fpsKeys.has('s')) side -= 1;
-  if (forward || side) {
-    const speed = fpsKeys.has('shift') ? 8.5 : 5.2;
-    fpsCamera.getWorldDirection(cameraForward);
-    cameraForward.y = 0;
-    cameraForward.normalize();
-    cameraRight.crossVectors(cameraForward, fpsCamera.up).normalize();
-    walkDirection.copy(cameraForward).multiplyScalar(forward).addScaledVector(cameraRight, side).normalize();
-    const next = fpsCamera.position.clone().addScaledVector(walkDirection, speed * delta);
-    const margin = 1.2;
-    const hitsPalm = palmColliders.some(palm => Math.hypot(next.x - palm.x, next.z - palm.z) < palm.radius);
-    if (!hitsPalm && !hitsObstacle(next) && next.x >= islandBounds.min.x + margin && next.x <= islandBounds.max.x - margin && next.z >= islandBounds.min.z + margin && next.z <= islandBounds.max.z - margin) {
-      const terrainHeight = terrainHeightAt(next.x, next.z);
-      const nextGroundLevel = terrainHeight === null ? groundLevel : terrainHeight + 1.72;
-      if (nextGroundLevel - groundLevel <= .45) {
-        groundLevel = nextGroundLevel;
-        fpsCamera.position.x = next.x;
-        fpsCamera.position.z = next.z;
-      }
-    }
-  }
-  verticalVelocity -= 24 * delta;
-  fpsCamera.position.y = Math.max(groundLevel, fpsCamera.position.y + verticalVelocity * delta);
-  if (fpsCamera.position.y === groundLevel) verticalVelocity = 0;
-}
-
-function createTreasureMarker() {
-  const marker = new THREE.Group();
-  const chest = new THREE.Mesh(
-    new THREE.BoxGeometry(1.15, .72, .72),
-    new THREE.MeshStandardMaterial({ color: '#75401e', roughness: .58, metalness: .08 })
-  );
-  chest.position.y = .38;
-  chest.castShadow = true;
-  marker.add(chest);
-  const lid = new THREE.Mesh(
-    new THREE.CylinderGeometry(.36, .36, 1.15, 20, 1, false, 0, Math.PI),
-    new THREE.MeshStandardMaterial({ color: '#8d5228', roughness: .5, metalness: .1 })
-  );
-  lid.rotation.z = Math.PI / 2;
-  lid.position.y = .76;
-  lid.castShadow = true;
-  marker.add(lid);
-  const lock = new THREE.Mesh(new THREE.BoxGeometry(.16, .2, .06), new THREE.MeshStandardMaterial({ color: '#f3be37', emissive: '#7d4d00', emissiveIntensity: .7, metalness: .8, roughness: .25 }));
-  lock.position.set(0, .43, .39);
-  marker.add(lock);
-  const glow = new THREE.PointLight('#f4bd42', 12, 12, 2);
-  glow.position.set(0, 2.2, 0);
-  marker.add(glow);
-  return marker;
-}
-
-function createPalmTree(height, lean = 0) {
-  const palm = new THREE.Group();
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(.16, .29, height, 8),
-    new THREE.MeshStandardMaterial({ color: '#80512c', roughness: .92 })
-  );
-  trunk.position.y = height / 2;
-  trunk.rotation.z = lean;
-  trunk.castShadow = true;
-  trunk.receiveShadow = true;
-  palm.add(trunk);
-
-  const crown = new THREE.Group();
-  crown.position.set(Math.sin(lean) * height * .32, height, 0);
-  const leafMaterial = new THREE.MeshStandardMaterial({ color: '#237346', roughness: .76, side: THREE.DoubleSide });
-  for (let index = 0; index < 8; index += 1) {
-    const leaf = new THREE.Mesh(new THREE.ConeGeometry(.65, 3.3, 4, 1, true), leafMaterial);
-    leaf.rotation.set(Math.PI / 2.7, index * Math.PI / 4, Math.PI / 4);
-    leaf.scale.set(.5, 1, .14);
-    leaf.position.set(Math.cos(index * Math.PI / 4) * 1.1, .02, Math.sin(index * Math.PI / 4) * 1.1);
-    leaf.castShadow = true;
-    crown.add(leaf);
-  }
-  palm.add(crown);
-  return palm;
-}
-
-function createTerrainRing(center, baseY, modelSize) {
-  const innerRadius = Math.max(modelSize.x, modelSize.z) * .48;
-  const outerRadius = innerRadius * 4.1;
-  const geometry = new THREE.RingGeometry(innerRadius, outerRadius, 128, 18);
-  geometry.rotateX(-Math.PI / 2);
-  const position = geometry.getAttribute('position');
-  const colors = new Float32Array(position.count * 3);
-  const color = new THREE.Color();
-  for (let index = 0; index < position.count; index += 1) {
-    const x = position.getX(index);
-    const z = position.getZ(index);
-    const radius = Math.hypot(x, z);
-    const blend = (radius - innerRadius) / (outerRadius - innerRadius);
-    const waves = Math.sin(x * .13) * Math.cos(z * .11) * .22 + Math.sin((x + z) * .19) * .1;
-    const ridge = Math.max(0, Math.sin(x * .06 - z * .08 + 1.5)) * .35;
-    position.setY(index, baseY + (waves + ridge) * blend * (1 - blend) - blend * .35);
-    if (blend < .18) color.set('#d8b966');
-    else if (blend < .68) color.set('#6f9252');
-    else if (blend < .87) color.set('#b7aa5e');
-    else color.set('#d9c478');
-    colors.set([color.r, color.g, color.b], index * 3);
-  }
-  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-  geometry.computeVertexNormals();
-  const terrain = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92, metalness: 0 }));
-  terrain.position.set(center.x, 0, center.z);
-  terrain.receiveShadow = true;
-  return terrain;
-}
-
-function loadIsland() {
-  const loader = new GLTFLoader();
-  loader.load('/src/assets/island/treasure-island.glb', gltf => {
-    islandRoot = gltf.scene;
-    const sourceBounds = new THREE.Box3().setFromObject(islandRoot);
-    const sourceSize = sourceBounds.getSize(new THREE.Vector3());
-    islandRoot.scale.setScalar(76 / Math.max(sourceSize.x, sourceSize.z));
-    islandRoot.updateMatrixWorld(true);
-    islandRoot.traverse(node => {
-      if (!node.isMesh) return;
-      node.castShadow = true;
-      node.receiveShadow = true;
-      const materials = Array.isArray(node.material) ? node.material : [node.material];
-      const isSourceTerrain = node.name.toLowerCase() === 'sea';
-      if (isSourceTerrain) {
-        node.material = new THREE.MeshStandardMaterial({ color: '#6f9252', roughness: .94, metalness: 0, side: THREE.DoubleSide });
-        groundMeshes.push(node);
-      }
-      const isGround = isSourceTerrain || materials.some(material => ['sand', 'föld'].includes(material?.name?.toLowerCase()));
-      if (isGround) groundMeshes.push(node);
-      if (!isGround && !node.name.toLowerCase().includes('palm')) {
-        const box = new THREE.Box3().setFromObject(node);
-        const size = box.getSize(new THREE.Vector3());
-        if (size.y > 3 && size.x > 4 && size.z > 4) obstacleColliders.push(box);
-      }
-      if (node.name.toLowerCase().includes('palm')) {
-        const position = node.getWorldPosition(new THREE.Vector3());
-        palmColliders.push({ x: position.x, z: position.z, radius: 1 });
-      }
-      materials.forEach(material => {
-        if (material?.map) material.map.colorSpace = THREE.SRGBColorSpace;
-      });
-    });
-    fpsScene.add(islandRoot);
-    islandBounds = new THREE.Box3().setFromObject(islandRoot);
-    islandSize = islandBounds.getSize(new THREE.Vector3());
-    const center = islandBounds.getCenter(new THREE.Vector3());
-    const modelBounds = islandBounds.clone();
-    const modelSize = islandSize.clone();
-    const terrainBase = terrainHeightAt(center.x, center.z) ?? islandBounds.min.y;
-    const terrain = createTerrainRing(center, terrainBase - .05, islandSize);
-    fpsScene.add(terrain);
-    groundMeshes.push(terrain);
-    islandBounds.expandByObject(terrain);
-    islandSize = islandBounds.getSize(new THREE.Vector3());
-    const addPalm = (x, z, height, lean) => {
-      const palm = createPalmTree(height, lean);
-      const palmX = center.x + modelSize.x * x;
-      const palmZ = center.z + modelSize.z * z;
-      const terrainHeight = terrainHeightAt(palmX, palmZ);
-      palm.position.set(palmX, terrainHeight ?? islandBounds.min.y, palmZ);
-      palmColliders.push({ x: palmX, z: palmZ, radius: .82 });
-      fpsScene.add(palm);
-    };
-    [
-      [-.32, -.12, 7.4, -.16], [-.1, .23, 8.5, .1], [.22, -.18, 7.8, -.12],
-      [.3, .17, 7.1, .18], [.04, -.34, 7.6, -.08], [-.28, .28, 7.2, .14],
-      [-1.08, -.48, 9.2, -.12], [.92, -.62, 8.8, .16], [.78, .66, 9.4, -.18],
-      [-.88, .72, 8.6, .11], [.12, 1.04, 7.9, -.09], [-.18, -1.12, 8.2, .15],
-      [-1.72, -.92, 10.8, -.14], [1.58, -.98, 11.5, .12], [1.64, .96, 10.3, -.18],
-      [-1.55, 1.2, 9.8, .1], [.36, 1.86, 11.2, -.11], [-.54, -1.84, 10.7, .16],
-      [2.15, -.16, 9.6, -.09], [-2.1, .18, 10.1, .13]
-    ].forEach(([x, z, height, lean]) => addPalm(x, z, height, lean));
-    const waterInnerRadius = Math.max(islandSize.x, islandSize.z) * .52;
-    const water = new THREE.Mesh(
-      new THREE.RingGeometry(waterInnerRadius, waterInnerRadius * 4.5, 144, 8),
-      new THREE.MeshPhysicalMaterial({ color: '#087b9a', roughness: .22, metalness: .18, transparent: true, opacity: .88 })
-    );
-    water.rotation.x = -Math.PI / 2;
-    water.position.set(center.x, islandBounds.min.y - .45, center.z);
-    water.receiveShadow = true;
-    fpsScene.add(water);
-
-    const treasureGround = terrainHeightAt(center.x, center.z) ?? islandBounds.min.y;
-    treasurePoint = new THREE.Vector3(center.x, treasureGround, center.z);
-    const marker = createTreasureMarker();
-    marker.position.copy(treasurePoint);
-    marker.position.y += .02;
-    fpsScene.add(marker);
-    spawnPoint = new THREE.Vector3(center.x, modelBounds.max.y + 2, center.z + modelSize.z * .72);
-    const spawnTerrain = terrainHeightAt(spawnPoint.x, spawnPoint.z);
-    spawnPoint.y = (spawnTerrain ?? modelBounds.min.y) + 1.72;
-    placePlayerAtSpawn();
-    fpsReady = true;
-    fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
-    setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar');
-  }, undefined, () => {
-    fpsStatus.textContent = 'No se ha podido cargar la isla';
-    setOverlay('No se pudo abrir la isla', 'Recarga la página para volver a intentarlo');
-  });
-}
-
-function resetFps() {
-  fpsWon = false;
-  fpsKeys.clear();
-  placePlayerAtSpawn();
-  fpsStatus.textContent = 'Encuentra el cofre dorado en la isla';
-  setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar');
-  document.exitPointerLock?.();
-}
-
-function enterFps() {
-  if (fpsReady && !fpsWon) fpsCanvas.requestPointerLock?.();
-}
-
-document.addEventListener('pointerlockchange', () => {
-  if (!fpsReady || fpsWon) return;
-  const active = document.pointerLockElement === fpsCanvas;
-  setOverlay('Entrar en la isla', 'Clic para explorar · WASD para caminar', !active);
-});
-document.addEventListener('mousemove', event => {
-  if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
-  yaw -= event.movementX * .00235;
-  pitch = THREE.MathUtils.clamp(pitch - event.movementY * .0021, -1.35, 1.35);
-  setCameraRotation();
-});
-document.addEventListener('keydown', event => {
-  if (document.pointerLockElement !== fpsCanvas || fpsWon) return;
-  const movementKey = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ShiftLeft: 'shift', ShiftRight: 'shift' }[event.code];
-  if (movementKey) fpsKeys.add(movementKey);
-  if (event.code === 'Space') {
-    if (!event.repeat && fpsCamera.position.y <= groundLevel + .001) verticalVelocity = 8.2;
-    event.preventDefault();
-  }
-});
-document.addEventListener('keyup', event => {
-  const movementKey = { KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd', ShiftLeft: 'shift', ShiftRight: 'shift' }[event.code];
-  if (movementKey) fpsKeys.delete(movementKey);
-});
-fpsShell.addEventListener('click', enterFps);
-fpsCanvas.addEventListener('click', enterFps);
-fpsOverlay.addEventListener('click', enterFps);
-document.getElementById('fps-reset').addEventListener('click', resetFps);
-new ResizeObserver(resizeFps).observe(fpsShell);
-resizeFps();
-loadIsland();
-
-function animateFps() {
-  const delta = Math.min(fpsClock.getDelta(), .05);
-  if (fpsReady && document.pointerLockElement === fpsCanvas && !fpsWon) movePlayer(delta);
-  updateFpsHud();
-  fpsRenderer.render(fpsScene, fpsCamera);
-  requestAnimationFrame(animateFps);
-}
-requestAnimationFrame(animateFps);
+updateProgress();
 
 document.getElementById('rsvp-form').addEventListener('submit', event => { event.preventDefault(); const name = document.getElementById('guest-name').value.trim(); const answer = document.getElementById('guest-answer').value; localStorage.setItem('lira-rsvp', JSON.stringify({ name, answer })); document.getElementById('rsvp-slot').innerHTML = `<div class="success" role="status"><b>¡Embarque confirmado, ${name.replace(/[<>]/g, '')}! ⚓</b><span>Tu respuesta ha quedado guardada en este dispositivo.</span><button id="change-rsvp">Cambiar respuesta</button></div>`; document.getElementById('change-rsvp').addEventListener('click', () => window.location.reload()); });
-document.getElementById('back-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+const backTop = document.getElementById('back-top');
+
+function syncBackTopVisibility() {
+  backTop.classList.toggle('is-visible', window.scrollY > 0);
+}
+
+backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+window.addEventListener('scroll', syncBackTopVisibility, { passive: true });
+window.addEventListener('resize', syncBackTopVisibility);
+syncBackTopVisibility();
