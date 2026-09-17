@@ -34,6 +34,111 @@
   }
 }
 
+/* Ajustes finales de jerarquía y textura. */
+.adventure h2 {
+  max-width: 1200px;
+  margin-inline: auto;
+  font-size: clamp(64px, 7vw, 112px);
+  line-height: .92;
+}
+
+.map-card .compass {
+  font-size: clamp(86px, 8vw, 118px);
+}
+
+.route {
+  gap: clamp(8px, 1.6vw, 22px);
+}
+
+.route img {
+  width: clamp(84px, 11vw, 132px);
+  height: clamp(84px, 11vw, 132px);
+}
+
+.route b {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.map-card {
+  padding-bottom: 100px;
+}
+
+.rsvp {
+  width: min(80vw, 1320px);
+  margin: 46px auto 30px;
+  border: 0;
+  border-radius: 0;
+  padding: 72px 7vw;
+  background-color: transparent;
+  background-image: url('/src/assets/pergamino-laterales-transparentes.webp');
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: none;
+  color: #2b160c;
+}
+
+.rsvp .eyebrow.light,
+.rsvp h2,
+.rsvp p,
+.rsvp label { color: #4a2919; }
+
+.rsvp h2 { text-shadow: 0 1px rgba(255, 244, 198, .9); }
+
+.rsvp input,
+.rsvp select {
+  border-color: #8c5d2c;
+  background: rgba(255, 247, 211, .72);
+  color: #2b160c;
+}
+
+.rsvp input::placeholder { color: rgba(70, 39, 20, .62); }
+.rsvp .success { background: rgba(112, 68, 27, .13); }
+.rsvp .success span { color: #4a2919; }
+
+@media (max-width: 560px) {
+  .adventure h2 { font-size: clamp(54px, 15vw, 72px); }
+  .route img { width: 72px; height: 72px; }
+  .map-card .compass { font-size: 86px; }
+  .map-card { padding-bottom: 72px; }
+  .rsvp { width: 90vw; padding: 54px 9vw; }
+}
+
+/* Los elementos principales de la invitación mantienen su escala al final de la cascada. */
+.adventure h2 {
+  max-width: 1200px;
+  margin-inline: auto;
+  font-size: clamp(64px, 7vw, 112px);
+  line-height: .92;
+}
+
+.map-card .compass {
+  font-size: clamp(86px, 8vw, 118px);
+}
+
+.route {
+  gap: clamp(8px, 1.6vw, 22px);
+}
+
+.route img {
+  width: clamp(84px, 11vw, 132px);
+  height: clamp(84px, 11vw, 132px);
+}
+
+.route b {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .adventure h2 { font-size: clamp(54px, 15vw, 72px); }
+  .route img { width: 72px; height: 72px; }
+  .map-card .compass { font-size: 86px; }
+}
+
 /* El estado del juego necesita respirar dentro de los bordes del pergamino. */
 .mini-game .game-footer {
   width: 100%;
@@ -222,7 +327,7 @@ header nav .nav-cta {
   border-radius: 0;
   padding: 72px 7vw;
   background-color: transparent;
-  background-image: url('/src/assets/pergamino-laterales-transparentes.png');
+  background-image: url('/src/assets/pergamino-laterales-transparentes.webp');
   background-position: center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -292,7 +397,7 @@ header nav .nav-cta {
 .memory button:not(.flipped) {
   border: 0;
   background-color: transparent;
-  background-image: url('/src/assets/pergamino-laterales-transparentes.png');
+  background-image: url('/src/assets/pergamino-laterales-transparentes.webp');
   background-position: center;
   background-size: 155% 155%;
   background-repeat: no-repeat;
@@ -311,7 +416,7 @@ header nav .nav-cta {
   width: 118px;
   height: 96px;
   object-fit: contain;
-  filter: drop-shadow(0 5px 4px rgba(23, 12, 4, .45));
+  filter: none;
 }
 
 .falling-item {
@@ -1352,7 +1457,7 @@ nav a:nth-child(2) { transform: rotate(1deg); }
   border: 0;
   border-radius: 0;
   background-color: #efd18c;
-  background-image: url('/src/assets/pergamino-laterales-transparentes.png');
+  background-image: url('/src/assets/pergamino-laterales-transparentes.webp');
   background-position: center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -1824,14 +1929,14 @@ h3,
   top: -48px;
   z-index: 1;
   font-size: 36px;
-  animation: coin-fall 1.75s linear forwards;
+  animation: item-fall var(--fall-duration, 1.75s) linear forwards;
   pointer-events: none;
 }
 
 .is-coin { filter: drop-shadow(0 2px 1px rgba(61, 41, 5, .45)); }
 .is-junk { filter: grayscale(.4); }
 
-@keyframes coin-fall { to { transform: translateY(350px) rotate(300deg); } }
+@keyframes item-fall { to { transform: translateY(350px) rotate(var(--spin-angle, 300deg)); } }
 
 .memory { margin: 4px 0 12px; gap: 10px; }
 .memory button {
@@ -1845,6 +1950,17 @@ h3,
 }
 
 .memory button.flipped { background: #ffd66c; }
+
+.memory-card-image {
+  display: block;
+  width: 86%;
+  height: 86%;
+  margin: auto;
+  background-image: url('/src/assets/parejas-oceano-sprite.webp');
+  background-position: var(--sprite-x) var(--sprite-y);
+  background-repeat: no-repeat;
+  background-size: 400% 200%;
+}
 
 /* Flecha de retorno fija y táctil. */
 #back-top {
@@ -1948,6 +2064,40 @@ h3,
 
 .hero-details .intro { max-width: 720px; }
 .hero-details .date-row { justify-content: center; }
+
+.hero-btn {
+  width: min(100%, 520px);
+  min-height: 94px;
+  padding: 22px 38px;
+  font-size: clamp(28px, 3vw, 42px);
+  letter-spacing: .8px;
+}
+
+.adventure h2 {
+  max-width: 1200px;
+  margin-inline: auto;
+  font-size: clamp(64px, 7vw, 112px);
+  line-height: .92;
+}
+
+.map-card .compass {
+  font-size: clamp(86px, 8vw, 118px);
+}
+
+.route {
+  gap: clamp(8px, 1.6vw, 22px);
+}
+
+.route img {
+  width: clamp(84px, 11vw, 132px);
+  height: clamp(84px, 11vw, 132px);
+}
+
+.route b {
+  flex: 0 1 115px;
+  min-width: 0;
+  white-space: nowrap;
+}
 
 .scene {
   width: min(80vw, 1280px);
@@ -2133,3 +2283,183 @@ h3,
     font-size: 17px !important;
   }
 }
+
+/* Acabados de pergamino y proporción, después de las reglas adaptables base. */
+.map-card {
+  padding-bottom: 100px;
+}
+
+.rsvp {
+  width: min(80vw, 1320px);
+  margin: 46px auto 30px;
+  border: 0;
+  border-radius: 0;
+  padding: 72px 7vw;
+  background-color: transparent;
+  background-image: url('/src/assets/pergamino-laterales-transparentes.webp');
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: none;
+  color: #2b160c;
+}
+
+.rsvp .eyebrow.light,
+.rsvp h2,
+.rsvp p,
+.rsvp label { color: #4a2919; }
+
+.rsvp h2 { text-shadow: 0 1px rgba(255, 244, 198, .9); }
+
+.rsvp input,
+.rsvp select {
+  border-color: #8c5d2c;
+  background: rgba(255, 247, 211, .72);
+  color: #2b160c;
+}
+
+.rsvp input::placeholder { color: rgba(70, 39, 20, .62); }
+.rsvp .success { background: rgba(112, 68, 27, .13); }
+.rsvp .success span { color: #4a2919; }
+
+@media (max-width: 560px) {
+  .map-card { padding-bottom: 72px; }
+  .rsvp { width: 90vw; padding: 54px 9vw; }
+}
+
+.mini-game .game-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.mini-game .game-footer small,
+.mini-game .game-footer .game-replay {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.stage-close {
+  min-height: 76px;
+  margin: 0 0 28px;
+  padding: 18px 32px;
+  font-size: 26px;
+}
+
+@media (max-width: 560px) {
+  .stage-close {
+    min-height: 66px;
+    margin-bottom: 22px;
+    padding: 16px 24px;
+    font-size: 20px;
+  }
+}
+
+/* La salida del minijuego se resuelve con un fundido, sin cerrar el telón. */
+.game-stage.is-closing .game-stage__curtain {
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.game-stage.is-closing .game-stage__content {
+  opacity: 0;
+  transform: scale(.98);
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+@media (max-width: 560px) {
+  .adventure {
+    padding: 54px 6vw;
+  }
+
+  .adventure > .eyebrow {
+    margin-bottom: 12px;
+    font-size: 25px;
+    letter-spacing: 1px;
+  }
+
+  .adventure h2 {
+    max-width: 100%;
+    font-size: clamp(48px, 14vw, 60px);
+    line-height: .98;
+  }
+
+  .adventure .section-intro {
+    margin-bottom: 34px;
+    font-size: 20px;
+    line-height: 1.45;
+  }
+
+  .features {
+    max-width: 460px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .features article {
+    align-items: flex-start;
+    gap: 16px;
+    padding: 26px 24px;
+  }
+
+  .features p {
+    font-size: 20px;
+    line-height: 1.45;
+  }
+}
+
+/* Iconos pintados: sustituyen los emojis de la interfaz. */
+.real-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  vertical-align: -.14em;
+  background: center / 400% 300% no-repeat url('/src/assets/iconos-piratas-reales.webp');
+}
+
+.real-icon--skull { background-position: 0 0; }
+.real-icon--coconut { background-position: 33.333% 0; }
+.real-icon--gift { background-position: 66.667% 0; }
+.real-icon--puzzle { background-position: 100% 0; }
+.real-icon--target { background-position: 0 50%; }
+.real-icon--broom { background-position: 33.333% 50%; }
+.real-icon--spyglass { background-position: 66.667% 50%; }
+.real-icon--route { background-position: 100% 50%; }
+.real-icon--bottle { background-position: 0 100%; }
+.real-icon--audio-off { background-position: 33.333% 100%; }
+.real-icon--audio-on { background-position: 66.667% 100%; }
+.real-icon--sparkle { background-position: 100% 100%; }
+
+.real-icon--anchor,
+.real-icon--parrot,
+.real-icon--map,
+.real-icon--gem,
+.real-icon--coin,
+.real-icon--boat,
+.real-icon--compass,
+.real-icon--chest {
+  background-image: url('/src/assets/parejas-oceano-sprite.webp');
+  background-size: 400% 200%;
+}
+
+.real-icon--anchor { background-position: 0 0; }
+.real-icon--parrot { background-position: 33.333% 0; }
+.real-icon--map { background-position: 66.667% 0; }
+.real-icon--gem { background-position: 100% 0; }
+.real-icon--coin { background-position: 0 100%; }
+.real-icon--boat { background-position: 33.333% 100%; }
+.real-icon--compass { background-position: 66.667% 100%; }
+.real-icon--chest { background-position: 100% 100%; }
+
+.welcome-curtain__message .real-icon--skull { width: 74px; height: 74px; }
+.features article > .real-icon,
+.game-icon.real-icon { width: 52px; height: 52px; }
+.games-progress > .real-icon { width: 38px; height: 38px; }
+.game-roster article > .real-icon { width: 44px; height: 44px; margin-inline: auto; }
+.bottle.real-icon { width: 76px; height: 76px; transform: rotate(-25deg); }
+.compass.real-icon { width: 118px; height: 118px; }
+.hidden-treasure > .real-icon { width: 46px; height: 46px; }
+.audio-toggle > .real-icon { width: 34px; height: 34px; vertical-align: middle; }
