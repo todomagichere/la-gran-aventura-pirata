@@ -20,11 +20,12 @@ root.innerHTML = `
       <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
       <article class="game-card mini-game" data-game="coins"><div class="game-title"><span class="game-icon">💰</span><div><p>ATRAPA MONEDAS</p><h3>El cofre veloz</h3></div></div><p class="hint">Mueve el cofre con el ratón, el dedo o las flechas. Atrapa oro y evita las botas.</p><button class="game-start" data-start="coins">JUGAR</button><div class="coin-field" id="coin-field" hidden tabindex="0" aria-label="Atrapa las monedas con las flechas izquierda y derecha"></div><div class="game-footer"><small id="coins-status">45 segundos · 0 monedas</small><button class="game-replay" data-replay="coins" hidden>Jugar otra vez ↻</button></div></article>
       <article class="game-card mini-game memory-game" data-game="memory"><div class="game-title"><span class="game-icon">🧭</span><div><p>MEMORIA PIRATA</p><h3>Parejas del océano</h3></div></div><p class="hint">Da la vuelta a dos cartas y encuentra las 8 parejas.</p><button class="game-start" data-start="memory">JUGAR</button><div class="memory" id="memory" hidden></div><div class="game-footer"><small id="memory-status">8 parejas por encontrar</small><button class="game-replay" data-replay="memory" hidden>Jugar otra vez ↻</button></div></article>
-    </div><div class="game-roster"><p class="eyebrow">PRÓXIMAS AVENTURAS</p><div><article>🧩<b>Puzzle pirata</b><span>6–12 piezas</span></article><article>🦜<b>Sigue al loro</b><span>Repite la secuencia</span></article><article>🚢<b>Ordena el barco</b><span>Arrastra las piezas</span></article><article>🎯<b>Diana del capitán</b><span>Apunta a barriles</span></article><article>🧹<b>Limpia la cubierta</b><span>Ordena y clasifica</span></article><article>🔎<b>Las diferencias</b><span>Encuentra 5 cambios</span></article><article>✕<b>Ruta del tesoro</b><span>Sigue el camino</span></article></div></div></section>
+      <article class="game-card mini-game parrot-game" data-game="parrot"><div class="game-title"><span class="game-icon">🦜</span><div><p>SIGUE AL LORO</p><h3>El eco de la isla</h3></div></div><p class="hint">Mira la secuencia que canta el loro y repítela en el mismo orden.</p><button class="game-start" data-start="parrot">JUGAR</button><div class="parrot-board" id="parrot-board" hidden aria-label="Secuencia del loro"><button class="parrot-pad parrot-pad--sun" type="button" data-parrot-note="0" aria-label="Loro amarillo"><i class="real-icon real-icon--parrot" aria-hidden="true"></i></button><button class="parrot-pad parrot-pad--sea" type="button" data-parrot-note="1" aria-label="Loro azul"><i class="real-icon real-icon--parrot" aria-hidden="true"></i></button><button class="parrot-pad parrot-pad--leaf" type="button" data-parrot-note="2" aria-label="Loro verde"><i class="real-icon real-icon--parrot" aria-hidden="true"></i></button><button class="parrot-pad parrot-pad--coral" type="button" data-parrot-note="3" aria-label="Loro coral"><i class="real-icon real-icon--parrot" aria-hidden="true"></i></button></div><div class="game-footer"><small id="parrot-status">Repite 5 llamadas del loro</small><button class="game-replay" data-replay="parrot" hidden>Jugar otra vez ↻</button></div></article>
+    </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
   <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="/src/assets/guybrush.webp" alt=""></div>
-  <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button></footer>`;
+  <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="/src/assets/barco-pirata-footer.webp" alt="" loading="lazy" decoding="async"></div></div></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
 const loadDeferredImage = image => {
@@ -75,6 +76,29 @@ function replaceEmojisWithRealImages(container = root) {
 }
 replaceEmojisWithRealImages();
 
+function startFooterWaves() {
+  const wave = document.getElementById('footer-wave');
+  const backWave = document.getElementById('footer-wave-back');
+  if (!wave || !backWave || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.wavify) return;
+  window.wavify(backWave, {
+    container: '#footer-water',
+    height: 18,
+    bones: 5,
+    amplitude: 10,
+    color: 'rgba(44, 191, 210, .88)',
+    speed: .3
+  });
+  window.wavify(wave, {
+    container: '#footer-water',
+    height: 38,
+    bones: 4,
+    amplitude: 8,
+    color: 'rgba(177, 246, 247, .92)',
+    speed: .42
+  });
+}
+window.addEventListener('load', startFooterWaves, { once: true });
+
 
 console.log(String.raw`
                  __..-----')
@@ -119,7 +143,7 @@ const welcomeSeenKey = 'lira-welcome-seen';
 const welcomeWasSeen = localStorage.getItem(welcomeSeenKey) === 'yes';
 let musicEnabled = false;
 let themeHasPlayed = false;
-themeAudio.volume = 0.42;
+themeAudio.volume = 0.25;
 if (welcomeWasSeen) {
   welcomeCurtain.remove();
   localStorage.setItem('lira-theme-audio', 'off');
@@ -220,9 +244,10 @@ function openGameStage(game) {
     setTimeout(() => {
       clearInterval(treasureTimer);
       clearCoinRound();
+      clearParrotRound();
       card.querySelector('.game-start').hidden = false;
       card.querySelector('.game-replay').hidden = true;
-      card.querySelectorAll('.treasure-scene, .coin-field, .memory, .treasure-targets').forEach(element => {
+      card.querySelectorAll('.treasure-scene, .coin-field, .memory, .parrot-board, .treasure-targets').forEach(element => {
         element.hidden = true;
         if (element.classList.contains('coin-field')) element.innerHTML = '';
       });
@@ -245,6 +270,7 @@ function beginGame(game) {
   if (game === 'treasure') startTreasure();
   if (game === 'coins') startCoinCatch();
   if (game === 'memory') startMemory();
+  if (game === 'parrot') startParrot();
 }
 
 document.addEventListener('click', event => {
@@ -437,6 +463,85 @@ function startCoinCatch() {
   }, 1000);
 }
 
+// Sigue al loro: memoriza y repite una llamada cada vez más larga.
+let parrotTimeouts = [];
+function clearParrotRound() {
+  parrotTimeouts.forEach(clearTimeout);
+  parrotTimeouts = [];
+}
+
+function playParrotTone(note) {
+  if (!musicEnabled) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const context = new AudioContext();
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  oscillator.type = 'triangle';
+  oscillator.frequency.value = [392, 494, 587, 698][note];
+  gain.gain.setValueAtTime(.0001, context.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.075, context.currentTime + .018);
+  gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .28);
+  oscillator.connect(gain).connect(context.destination);
+  oscillator.start();
+  oscillator.stop(context.currentTime + .3);
+}
+
+function startParrot() {
+  clearParrotRound();
+  const board = document.getElementById('parrot-board');
+  const status = document.getElementById('parrot-status');
+  const pads = [...board.querySelectorAll('[data-parrot-note]')];
+  const sequence = [];
+  let playerStep = 0;
+  let locked = true;
+  const flash = note => {
+    const pad = pads[note];
+    pad.classList.add('is-singing');
+    playParrotTone(note);
+    parrotTimeouts.push(setTimeout(() => pad.classList.remove('is-singing'), 330));
+  };
+  const playSequence = () => {
+    locked = true;
+    playerStep = 0;
+    sequence.push(Math.floor(Math.random() * pads.length));
+    status.textContent = `Escucha ${sequence.length} llamada${sequence.length === 1 ? '' : 's'} del loro…`;
+    let delay = 520;
+    sequence.forEach(note => {
+      parrotTimeouts.push(setTimeout(() => flash(note), delay));
+      delay += 650;
+    });
+    parrotTimeouts.push(setTimeout(() => {
+      locked = false;
+      status.textContent = `Tu turno · ${sequence.length} llamada${sequence.length === 1 ? '' : 's'}`;
+    }, delay));
+  };
+  board.hidden = false;
+  board.onclick = event => {
+    const pad = event.target.closest('[data-parrot-note]');
+    if (!pad || locked) return;
+    const note = Number(pad.dataset.parrotNote);
+    flash(note);
+    if (note !== sequence[playerStep]) {
+      locked = true;
+      status.textContent = `¡Casi! Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'}.`;
+      gameCards.parrot.querySelector('.game-replay').hidden = false;
+      return;
+    }
+    playerStep += 1;
+    if (playerStep !== sequence.length) return;
+    if (sequence.length === 5) {
+      locked = true;
+      winGame('parrot', '¡El loro ha repetido tu canción!');
+      return;
+    }
+    locked = true;
+    status.textContent = '¡Perfecto! El loro añade una llamada…';
+    parrotTimeouts.push(setTimeout(playSequence, 700));
+  };
+  playSequence();
+}
+
 // Memoria pirata: tablero 4 × 4 con ocho parejas.
 const memoryCards = [
   { key: 'anchor', name: 'Ancla', x: '0%', y: '0%' },
@@ -502,6 +607,7 @@ window.addEventListener('keydown', event => {
 });
 window.addEventListener('pointermove', hideGuybrushEgg, { passive: true });
 window.addEventListener('scroll', hideGuybrushEgg, { passive: true });
+
 const backTop = document.getElementById('back-top');
 
 function syncBackTopVisibility() {
