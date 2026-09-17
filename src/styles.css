@@ -433,11 +433,9 @@ header nav .nav-cta {
 
 .falling-item.caught {
   z-index: 3;
-  top: auto;
-  bottom: 62px;
-  margin-left: -20px;
   animation: none;
-  transform: scale(.72) rotate(-8deg);
+  transform: translateY(var(--fall-distance)) scale(.72) rotate(-8deg);
+  opacity: .45;
   transition: transform .2s ease, opacity .2s ease;
 }
 
@@ -1866,10 +1864,9 @@ h3,
 
 .treasure-scene {
   background:
-    radial-gradient(ellipse at 55% 50%, #a9b765 0 23%, transparent 24%),
-    radial-gradient(ellipse at 45% 52%, #a9b765 0 32%, transparent 33%),
-    repeating-linear-gradient(135deg, rgba(255,255,255,.18) 0 2px, transparent 2px 13px),
-    linear-gradient(145deg, #0a6c84 0 46%, #125e76 47% 100%);
+    linear-gradient(rgba(244, 229, 158, .12), rgba(25, 71, 58, .18)),
+    url('/src/assets/isla-aerea-caza-tesoro.webp') center / cover no-repeat;
+  background-color: #338f98;
 }
 
 .treasure-scene::before {
@@ -1882,6 +1879,7 @@ h3,
   font-size: 18px;
   letter-spacing: 2px;
   transform: translateX(-50%) rotate(-3deg);
+  text-shadow: 0 1px rgba(255, 247, 202, .6);
 }
 
 .hidden-treasure {
@@ -1902,18 +1900,38 @@ h3,
 .hidden-treasure:focus-visible,
 .hidden-treasure:hover { outline: 3px dashed #ffe47a; outline-offset: 3px; }
 .hidden-treasure.found { color: #fff; filter: drop-shadow(0 2px 1px #2f3415); transform: translate(-50%, -50%) scale(1.18) rotate(7deg); }
+.hidden-treasure.mistake { opacity: .18; filter: grayscale(1); transform: translate(-50%, -50%) scale(.72); }
+
+.treasure-targets {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  color: #3f2717;
+  font-family: 'Pirata One', 'IM Fell English', Georgia, serif;
+  font-size: 18px;
+}
+
+.treasure-targets span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.treasure-targets .real-icon { width: 28px; height: 28px; }
 
 .coin-field {
   min-height: 300px;
   background:
-    radial-gradient(circle at 22% 22%, rgba(255,255,255,.22), transparent 7%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,.1) 0 2px, transparent 2px 24px),
-    linear-gradient(#73cad6 0 38%, #13869d 39% 100%);
+    linear-gradient(rgba(240, 231, 181, .58), rgba(103, 144, 88, .48)),
+    url('/src/assets/ruta-isla.webp') center / min(62%, 360px) no-repeat,
+    linear-gradient(145deg, #b7cfb0, #759b70);
 }
 
 .catcher {
   position: absolute;
-  bottom: 12px;
+  bottom: 32px;
   left: 50%;
   z-index: 2;
   display: grid;
@@ -1921,7 +1939,8 @@ h3,
   height: 54px;
   place-items: center;
   border-radius: 18px 18px 8px 8px;
-  background: rgba(73, 38, 16, .35);
+  background: none;
+  box-shadow: none;
   font-size: 42px;
   transform: translateX(-50%);
   transition: left .12s ease-out;
@@ -1939,7 +1958,7 @@ h3,
 .is-coin { filter: drop-shadow(0 2px 1px rgba(61, 41, 5, .45)); }
 .is-junk { filter: grayscale(.4); }
 
-@keyframes item-fall { to { transform: translateY(350px) rotate(var(--spin-angle, 300deg)); } }
+@keyframes item-fall { to { transform: translateY(var(--fall-distance, 350px)) rotate(var(--spin-angle, 300deg)); } }
 
 .memory { margin: 4px 0 12px; gap: 10px; }
 .memory button {
@@ -1957,12 +1976,20 @@ h3,
 .memory-card-image {
   display: block;
   width: 86%;
-  height: 86%;
+  aspect-ratio: 1;
+  height: auto;
   margin: auto;
   background-image: url('/src/assets/parejas-oceano-sprite.webp');
   background-position: var(--sprite-x) var(--sprite-y);
   background-repeat: no-repeat;
   background-size: 400% 200%;
+}
+
+.memory button > span {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
 }
 
 /* Flecha de retorno fija y táctil. */
@@ -1977,7 +2004,9 @@ h3,
   place-items: center;
   border: 2px solid rgba(223, 180, 87, .64);
   border-radius: 16px 8px 18px 10px;
-  background: rgba(48, 29, 17, .72);
+  background:
+    repeating-linear-gradient(100deg, rgba(255, 224, 140, .08) 0 1px, transparent 1px 10px),
+    rgba(48, 29, 17, .72);
   box-shadow: 0 3px 10px rgba(15, 8, 4, .28), inset 0 0 0 1px rgba(255, 205, 103, .14);
   backdrop-filter: blur(5px);
   color: #ffd76b;
@@ -2010,7 +2039,9 @@ h3,
   height: 64px;
   border: 2px solid rgba(223, 180, 87, .64);
   border-radius: 16px 8px 18px 10px;
-  background: rgba(48, 29, 17, .72);
+  background:
+    repeating-linear-gradient(100deg, rgba(255, 224, 140, .08) 0 1px, transparent 1px 10px),
+    rgba(48, 29, 17, .72);
   box-shadow: 0 3px 10px rgba(15, 8, 4, .28), inset 0 0 0 1px rgba(255, 205, 103, .14);
   backdrop-filter: blur(5px);
   color: #ffd76b;
@@ -2471,7 +2502,7 @@ h3,
 }
 
 .game-layout > .mini-game {
-  padding: clamp(40px, 4vw, 52px);
+  padding: clamp(52px, 5vw, 64px);
 }
 
 .features b {
@@ -2490,6 +2521,8 @@ h3,
 
 .mini-game .game-title {
   justify-content: center;
+  flex-direction: column;
+  gap: 14px;
   text-align: center;
 }
 
@@ -2497,24 +2530,128 @@ h3,
   text-align: center;
 }
 
-.mini-game .game-title p { font-size: 27px; }
-.mini-game .game-title h3 { font-size: 48px; }
-.mini-game .hint { font-size: 36px; }
+.mini-game .game-title p { font-size: 32px; }
+.mini-game .game-title h3 { font-size: 54px; }
+.mini-game .hint { font-size: 40px; }
 .mini-game .game-start,
 .mini-game .game-replay { font-size: 27px !important; }
 .mini-game .game-footer small { font-size: 39px !important; }
 
+.rsvp label {
+  font-family: 'Pirata One', 'IM Fell English', Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: .8px;
+}
+
+.rsvp input,
+.rsvp select {
+  font-family: 'IM Fell English', Georgia, serif;
+}
+
 @media (max-width: 560px) {
-  .game-layout > .mini-game { padding: 32px; }
+  .game-layout > .mini-game { padding: 42px 36px; }
   .features b { font-size: 26px; }
   .features p { font-size: 21px; }
-  .mini-game .game-title p { font-size: 24px; }
-  .mini-game .game-title h3 { font-size: 40px; }
-  .mini-game .hint { font-size: 30px; }
+  .mini-game .game-title p { font-size: 28px; }
+  .mini-game .game-title h3 { font-size: 46px; }
+  .mini-game .hint { font-size: 34px; }
   .mini-game .game-start,
   .mini-game .game-replay { font-size: 24px !important; }
   .mini-game .game-footer small { font-size: 32px !important; }
+  .rsvp label { font-size: 28px; }
 }
 .compass.real-icon { width: 118px; height: 118px; }
 .hidden-treasure > .real-icon { width: 46px; height: 46px; }
-.audio-toggle > .real-icon { width: 34px; height: 34px; vertical-align: middle; }
+.audio-toggle > .real-icon {
+  width: 34px;
+  height: 34px;
+  vertical-align: middle;
+  transform: rotate(-10deg);
+}
+
+.map-card .compass { display: none; }
+
+.game-stage {
+  overflow: hidden;
+}
+
+.game-stage__content {
+  height: 100%;
+  max-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.game-stage .mini-game {
+  min-height: 0 !important;
+  height: 100%;
+  max-height: none;
+  padding: clamp(16px, 2.5vh, 30px);
+  gap: clamp(6px, 1.2vh, 12px);
+  overflow: hidden;
+}
+
+.game-stage .treasure-scene,
+.game-stage .coin-field {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.game-stage .memory {
+  width: min(100%, 50vh);
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.game-stage .game-title {
+  gap: clamp(4px, 1vh, 10px);
+}
+
+.game-stage .game-title p { font-size: clamp(18px, 2.5vh, 27px); }
+.game-stage .game-title h3 { font-size: clamp(28px, 4vh, 42px); }
+.game-stage .hint {
+  min-height: 0;
+  font-size: clamp(16px, 2.5vh, 24px);
+  line-height: 1.2;
+}
+
+.game-stage .game-start,
+.game-stage .game-replay {
+  min-height: clamp(42px, 6vh, 52px);
+  padding-block: 7px;
+  font-size: clamp(16px, 2.5vh, 22px) !important;
+}
+
+.game-stage .game-footer {
+  min-height: 0;
+  margin-top: 0;
+  padding: 6px;
+  gap: 5px;
+}
+
+.game-stage .game-footer small {
+  font-size: clamp(15px, 2.2vh, 21px) !important;
+  line-height: 1.15;
+}
+
+.guybrush-easter-egg {
+  position: fixed;
+  z-index: 200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: rgba(0, 0, 0, .6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .65s ease;
+}
+
+.guybrush-easter-egg.is-visible { opacity: 1; }
+
+.guybrush-easter-egg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

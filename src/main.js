@@ -15,7 +15,7 @@ root.innerHTML = `
       <div class="scene"><img src="/src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
     </section>
     <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
-    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="/src/assets/ruta-casa.webp" alt="Casa de salida" loading="lazy" decoding="async"><b>··············</b><img data-src="/src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"><b>··············</b><img data-src="/src/assets/ruta-tesoro-x.webp" alt="Marca X del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA <span>↗</span></a></div></section>
+    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="/src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
       <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
       <article class="game-card mini-game" data-game="coins"><div class="game-title"><span class="game-icon">💰</span><div><p>ATRAPA MONEDAS</p><h3>El cofre veloz</h3></div></div><p class="hint">Mueve el cofre con el ratón, el dedo o las flechas. Atrapa oro y evita las botas.</p><button class="game-start" data-start="coins">JUGAR</button><div class="coin-field" id="coin-field" hidden tabindex="0" aria-label="Atrapa las monedas con las flechas izquierda y derecha"></div><div class="game-footer"><small id="coins-status">45 segundos · 0 monedas</small><button class="game-replay" data-replay="coins" hidden>Jugar otra vez ↻</button></div></article>
@@ -23,6 +23,7 @@ root.innerHTML = `
     </div><div class="game-roster"><p class="eyebrow">PRÓXIMAS AVENTURAS</p><div><article>🧩<b>Puzzle pirata</b><span>6–12 piezas</span></article><article>🦜<b>Sigue al loro</b><span>Repite la secuencia</span></article><article>🚢<b>Ordena el barco</b><span>Arrastra las piezas</span></article><article>🎯<b>Diana del capitán</b><span>Apunta a barriles</span></article><article>🧹<b>Limpia la cubierta</b><span>Ordena y clasifica</span></article><article>🔎<b>Las diferencias</b><span>Encuentra 5 cambios</span></article><article>✕<b>Ruta del tesoro</b><span>Sigue el camino</span></article></div></div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option>¡Sí, allí estaré!</option><option>No podré embarcar</option><option>Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR ASISTENCIA <span>→</span></button></form></div></section>
   </main>
+  <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="/src/assets/guybrush.webp" alt=""></div>
   <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
@@ -217,6 +218,14 @@ function openGameStage(game) {
     if (!activeStage) return;
     stage.classList.add('is-closing');
     setTimeout(() => {
+      clearInterval(treasureTimer);
+      clearCoinRound();
+      card.querySelector('.game-start').hidden = false;
+      card.querySelector('.game-replay').hidden = true;
+      card.querySelectorAll('.treasure-scene, .coin-field, .memory, .treasure-targets').forEach(element => {
+        element.hidden = true;
+        if (element.classList.contains('coin-field')) element.innerHTML = '';
+      });
       if (marker.parentNode) marker.replaceWith(card);
       stage.remove();
       activeStage = undefined;
@@ -251,15 +260,43 @@ function startTreasure() {
   clearInterval(treasureTimer);
   const scene = document.getElementById('treasure-scene');
   const status = document.getElementById('treasure-status');
-  const treasures = ['gem', 'compass', 'map', 'coin', 'parrot'];
+  const treasures = [
+    { icon: 'gem', name: 'Gema azul' },
+    { icon: 'compass', name: 'Brújula' },
+    { icon: 'map', name: 'Mapa' },
+    { icon: 'coin', name: 'Moneda' },
+    { icon: 'parrot', name: 'Loro' }
+  ];
+  const distractions = [
+    'coconut', 'gift', 'puzzle', 'target', 'broom', 'audio-off', 'bottle', 'skull',
+    'route', 'coconut', 'gift', 'puzzle', 'target', 'broom', 'audio-on', 'bottle'
+  ];
+  const sceneItems = [
+    ...treasures.map(item => ({ ...item, isTreasure: true })),
+    ...distractions.map(icon => ({ icon, isTreasure: false }))
+  ];
   let found = 0;
   let seconds = 60;
+  let targetList = scene.parentElement.querySelector('.treasure-targets');
+  if (!targetList) {
+    targetList = document.createElement('div');
+    targetList.className = 'treasure-targets';
+    scene.before(targetList);
+  }
+  targetList.innerHTML = treasures.map(item => `<span><i class="real-icon real-icon--${item.icon}" aria-hidden="true"></i>${item.name}</span>`).join('');
+  targetList.hidden = false;
   scene.hidden = false;
-  scene.innerHTML = treasures.map((item, index) => `<button class="hidden-treasure" data-treasure="${index}" style="--x:${10 + Math.random() * 76}%;--y:${12 + Math.random() * 68}%" aria-label="Objeto escondido"><i class="real-icon real-icon--${item}" aria-hidden="true"></i></button>`).join('');
+  scene.innerHTML = sceneItems.map((item, index) => `<button class="hidden-treasure${item.isTreasure ? '' : ' is-distraction'}" data-treasure="${item.isTreasure}" data-item="${index}" style="--x:${6 + Math.random() * 88}%;--y:${8 + Math.random() * 80}%" aria-label="${item.isTreasure ? `Tesoro: ${item.name}` : 'Objeto que no es un tesoro'}"><i class="real-icon real-icon--${item.icon}" aria-hidden="true"></i></button>`).join('');
   status.textContent = `0 de 5 objetos · ${seconds} s`;
   scene.onclick = event => {
-    const item = event.target.closest('[data-treasure]');
+    const item = event.target.closest('[data-item]');
     if (!item || item.classList.contains('found')) return;
+    if (item.dataset.treasure === 'false') {
+      item.classList.add('found', 'mistake');
+      seconds = Math.max(0, seconds - 3);
+      status.textContent = `Eso no es un tesoro · ${found} de 5 · ${seconds} s`;
+      return;
+    }
     item.classList.add('found');
     found += 1;
     if (found === treasures.length) {
@@ -279,10 +316,11 @@ function startTreasure() {
 }
 
 // Atrapa monedas: el cofre se mueve con ratón, tacto o flechas.
-let coinTimer, coinSpawner, coinTimeouts = [], catcherPosition = 50;
+let coinTimer, coinSpawner, coinTimeouts = [], coinFrames = new Set(), catcherPosition = 50;
 function clearCoinRound() {
   clearInterval(coinTimer); clearInterval(coinSpawner);
   coinTimeouts.forEach(clearTimeout); coinTimeouts = [];
+  coinFrames.forEach(cancelAnimationFrame); coinFrames.clear();
 }
 function moveCatcher(position) {
   catcherPosition = Math.max(6, Math.min(94, position));
@@ -314,6 +352,7 @@ function startCoinCatch() {
   let seconds = 45;
   field.hidden = false;
   field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="/src/assets/cofre-pirata-realista.webp" alt=""></span>';
+  const catcherImage = field.querySelector('.catcher img');
   moveCatcher(50);
   field.focus({ preventScroll: true });
   const setFromPointer = event => {
@@ -333,15 +372,29 @@ function startCoinCatch() {
     const fallDuration = 1250 + Math.round(Math.random() * 1050);
     const spinDirection = Math.random() < .5 ? -1 : 1;
     const spinAngle = spinDirection * (180 + Math.round(Math.random() * 540));
+    const fallDistance = field.clientHeight + 44;
     const drop = document.createElement('span');
     drop.className = `falling-item ${isCoin ? 'is-coin' : 'is-junk'}`;
     drop.innerHTML = `<img src="/src/assets/${isCoin ? 'moneda-pirata-realista.webp' : 'bota-pirata-realista.webp'}" alt="">`;
     drop.style.left = `${left}%`;
     drop.style.setProperty('--fall-duration', `${fallDuration}ms`);
     drop.style.setProperty('--spin-angle', `${spinAngle}deg`);
+    drop.style.setProperty('--fall-distance', `${fallDistance}px`);
     field.append(drop);
-    coinTimeouts.push(setTimeout(() => {
-      const caught = Math.abs(left - catcherPosition) < 11;
+    let resolved = false;
+    let collisionFrame;
+    const overlapsCatcher = () => {
+      const item = drop.getBoundingClientRect();
+      const chest = catcherImage.getBoundingClientRect();
+      return item.left < chest.right && item.right > chest.left && item.top < chest.bottom && item.bottom > chest.top;
+    };
+    const resolveDrop = caught => {
+      if (resolved) return;
+      resolved = true;
+      if (collisionFrame) {
+        cancelAnimationFrame(collisionFrame);
+        coinFrames.delete(collisionFrame);
+      }
       if (caught && isCoin) {
         score += 1;
         drop.classList.add('caught');
@@ -352,6 +405,21 @@ function startCoinCatch() {
         drop.remove();
       }
       status.textContent = `${seconds} s · ${score} monedas`;
+    };
+    const checkCollision = () => {
+      coinFrames.delete(collisionFrame);
+      if (!drop.isConnected || resolved) return;
+      if (overlapsCatcher()) {
+        resolveDrop(true);
+        return;
+      }
+      collisionFrame = requestAnimationFrame(checkCollision);
+      coinFrames.add(collisionFrame);
+    };
+    collisionFrame = requestAnimationFrame(checkCollision);
+    coinFrames.add(collisionFrame);
+    coinTimeouts.push(setTimeout(() => {
+      resolveDrop(false);
     }, fallDuration));
   };
   spawn(); coinSpawner = setInterval(spawn, 780);
@@ -413,6 +481,27 @@ document.getElementById('memory').addEventListener('click', event => {
 updateProgress();
 
 document.getElementById('rsvp-form').addEventListener('submit', event => { event.preventDefault(); const name = document.getElementById('guest-name').value.trim(); const answer = document.getElementById('guest-answer').value; localStorage.setItem('lira-rsvp', JSON.stringify({ name, answer })); document.getElementById('rsvp-slot').innerHTML = `<div class="success" role="status"><b>¡Embarque confirmado, ${name.replace(/[<>]/g, '')}! <i class="real-icon real-icon--anchor" aria-hidden="true"></i></b><span>Tu respuesta ha quedado guardada en este dispositivo.</span><button id="change-rsvp">Cambiar respuesta</button></div>`; document.getElementById('change-rsvp').addEventListener('click', () => window.location.reload()); });
+const guybrushEgg = document.getElementById('guybrush-easter-egg');
+const guybrushImage = guybrushEgg.querySelector('img');
+let guybrushVisible = false;
+let guybrushSequence = '';
+function showGuybrushEgg() {
+  if (!guybrushImage.getAttribute('src')) guybrushImage.src = guybrushImage.dataset.easterSrc;
+  guybrushVisible = true;
+  guybrushEgg.classList.add('is-visible');
+}
+function hideGuybrushEgg() {
+  if (!guybrushVisible) return;
+  guybrushVisible = false;
+  guybrushEgg.classList.remove('is-visible');
+}
+window.addEventListener('keydown', event => {
+  if (event.ctrlKey || event.metaKey || event.altKey || event.key.length !== 1) return;
+  guybrushSequence = `${guybrushSequence}${event.key.toLowerCase()}`.slice(-8);
+  if (guybrushSequence === 'guybrush') showGuybrushEgg();
+});
+window.addEventListener('pointermove', hideGuybrushEgg, { passive: true });
+window.addEventListener('scroll', hideGuybrushEgg, { passive: true });
 const backTop = document.getElementById('back-top');
 
 function syncBackTopVisibility() {
