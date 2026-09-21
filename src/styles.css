@@ -2989,3 +2989,95 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
   height: 100%;
   object-fit: cover;
 }
+
+/* Cuenta atrás sobre el pergamino que marca la fecha de la aventura. */
+.countdown {
+  padding: 34px 8vw 78px;
+  background-color: #f3ead4;
+  text-align: center;
+}
+
+.countdown__card {
+  width: min(100%, 1060px);
+  margin: 0 auto;
+  padding: clamp(42px, 6vw, 68px) clamp(20px, 6vw, 72px);
+  box-sizing: border-box;
+  background-color: #efd18c;
+  background-image: url('./assets/pergamino-laterales-transparentes.webp');
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  color: #4a2919;
+}
+
+.countdown .eyebrow {
+  color: #9a5129;
+  font-size: clamp(15px, 1.8vw, 20px);
+}
+
+.countdown h2 {
+  margin: 8px 0 30px;
+  color: #4a2919;
+  font-family: 'Pirata One', 'IM Fell English', Georgia, serif;
+  font-size: clamp(40px, 5.6vw, 68px);
+  font-weight: 400;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.countdown__units {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 2vw, 24px);
+  max-width: 860px;
+  margin: auto;
+}
+
+.countdown__units > div {
+  min-width: 0;
+  padding: 12px 8px;
+  border: 2px solid rgba(99, 55, 24, .45);
+  border-radius: 4px 12px 6px 10px;
+  background-color: rgba(255, 245, 204, .46);
+}
+
+.countdown__units b,
+.countdown__units span {
+  display: block;
+}
+
+.countdown__units b {
+  color: #593019;
+  font-family: 'Pirata One', 'IM Fell English', Georgia, serif;
+  font-size: clamp(38px, 6vw, 78px);
+  font-weight: 400;
+  line-height: .9;
+}
+
+.countdown__units span {
+  margin-top: 9px;
+  color: #8b4d25;
+  font-family: 'IM Fell English SC', 'IM Fell English', Georgia, serif;
+  font-size: clamp(13px, 1.55vw, 18px);
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.countdown__status {
+  margin: 28px 0 0;
+  color: #62371e;
+  font-size: clamp(17px, 2vw, 24px);
+  line-height: 1.25;
+}
+
+/* Los dos antetítulos solicitados se muestran al doble de su escala anterior. */
+#mapa .map-card > p:first-of-type { font-size: 36px; }
+#juegos > .eyebrow { font-size: 32px; }
+
+@media (max-width: 560px) {
+  .countdown { padding: 22px 4vw 58px; }
+  .countdown__card { padding: 38px 18px 48px; }
+  .countdown__units { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #mapa .map-card > p:first-of-type { font-size: 36px; line-height: 1.05; }
+  #juegos > .eyebrow { font-size: 32px; line-height: 1.1; }
+}

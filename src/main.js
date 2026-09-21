@@ -14,6 +14,7 @@ root.innerHTML = `
     <section class="hero" id="inicio"><div class="hero-copy"><h1>LA GRAN AVENTURA <em>PIRATA</em></h1></div>
       <div class="scene"><img src="./src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
     </section>
+    <section class="countdown" aria-labelledby="countdown-title"><div class="countdown__card"><p class="eyebrow">EL MAPA MARCA LA FECHA</p><h2 id="countdown-title">FALTAN...</h2><div class="countdown__units" role="timer" aria-live="polite" aria-atomic="true"><div><b id="countdown-days">00</b><span>DÍAS</span></div><div><b id="countdown-hours">00</b><span>HORAS</span></div><div><b id="countdown-minutes">00</b><span>MINUTOS</span></div><div><b id="countdown-seconds">00</b><span>SEGUNDOS</span></div></div><p class="countdown__status" id="countdown-status">Hasta el 24 de octubre de 2026 · 11:00 h</p></div></section>
     <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
     <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="./src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
@@ -230,6 +231,39 @@ document.addEventListener('keydown', event => {
 document.addEventListener('pointerdown', event => {
   if (siteHeader.classList.contains('is-nav-open') && !siteHeader.contains(event.target)) setMenuOpen(false);
 });
+
+const countdownTarget = new Date('2026-10-24T11:00:00+02:00').getTime();
+let countdownTimer;
+const countdownValues = {
+  days: document.getElementById('countdown-days'),
+  hours: document.getElementById('countdown-hours'),
+  minutes: document.getElementById('countdown-minutes'),
+  seconds: document.getElementById('countdown-seconds')
+};
+const countdownStatus = document.getElementById('countdown-status');
+
+function updateCountdown() {
+  let secondsLeft = Math.max(0, Math.floor((countdownTarget - Date.now()) / 1000));
+  const days = Math.floor(secondsLeft / 86400);
+  secondsLeft %= 86400;
+  const hours = Math.floor(secondsLeft / 3600);
+  secondsLeft %= 3600;
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
+  const values = { days, hours, minutes, seconds };
+
+  Object.entries(values).forEach(([unit, value]) => {
+    countdownValues[unit].textContent = String(value).padStart(2, '0');
+  });
+
+  if (countdownTarget <= Date.now()) {
+    countdownStatus.textContent = '¡LA GRAN AVENTURA PIRATA HA COMENZADO!';
+    if (countdownTimer) window.clearInterval(countdownTimer);
+  }
+}
+
+updateCountdown();
+countdownTimer = window.setInterval(updateCountdown, 1000);
 
 const progressKey = 'lira-mini-game-progress';
 const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
