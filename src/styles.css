@@ -3090,3 +3090,5 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
   color: #2b160c;
   text-shadow: 0 1px 0 rgba(255, 244, 198, .92);
 }
+
+.hero-details .intro { font-size: 52px; }
