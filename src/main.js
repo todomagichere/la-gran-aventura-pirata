@@ -2,20 +2,20 @@
 const root = document.getElementById('root');
 
 root.innerHTML = `
-  <audio id="theme-audio" src="/src/assets/monkey_island_main_theme.m4a" loop preload="metadata" playsinline></audio>
+  <audio id="theme-audio" src="./src/assets/monkey_island_main_theme.m4a" loop preload="metadata" playsinline></audio>
   <section class="welcome-curtain" id="welcome-curtain" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
     <div class="welcome-curtain__panel welcome-curtain__panel--left" aria-hidden="true"></div>
     <div class="welcome-curtain__panel welcome-curtain__panel--right" aria-hidden="true"></div>
     <div class="welcome-curtain__message"><span aria-hidden="true">☠</span><p>MENSAJE PARA LA TRIPULACIÓN</p><h1 id="welcome-title">¡BIENVENIDOS A<br>LA ISLA DE LIRA!</h1><button id="welcome-continue" type="button">HAZ CLIC PARA CONTINUAR <b aria-hidden="true">→</b></button></div>
   </section>
   <button class="audio-toggle" id="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false" title="Activar música">🔇</button>
-  <header><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><nav><a href="#aventura">Bitácora</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
+  <header><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><button class="nav-toggle" type="button" aria-label="Abrir menú" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span></button><nav id="site-nav"><a href="#aventura">Bitácora</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
   <main>
     <section class="hero" id="inicio"><div class="hero-copy"><h1>RUMBO A LOS <em>7 AÑOS</em> DE LIRA</h1></div>
-      <div class="scene"><img src="/src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
+      <div class="scene"><img src="./src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
     </section>
     <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
-    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="/src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
+    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="./src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
       <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
       <article class="game-card mini-game" data-game="coins"><div class="game-title"><span class="game-icon">💰</span><div><p>ATRAPA MONEDAS</p><h3>El cofre veloz</h3></div></div><p class="hint">Mueve el cofre con el ratón, el dedo o las flechas. Atrapa oro y evita las botas.</p><button class="game-start" data-start="coins">JUGAR</button><div class="coin-field" id="coin-field" hidden tabindex="0" aria-label="Atrapa las monedas con las flechas izquierda y derecha"></div><div class="game-footer"><small id="coins-status">45 segundos · 0 monedas</small><button class="game-replay" data-replay="coins" hidden>Jugar otra vez ↻</button></div></article>
@@ -24,8 +24,8 @@ root.innerHTML = `
     </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option value="asistirá a la fiesta">¡Sí, allí estaré!</option><option value="no asistirá a la fiesta">No podré embarcar</option><option value="aún no sabe si asistirá a la fiesta">Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR POR WHATSAPP <span>→</span></button></form></div></section>
   </main>
-  <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="/src/assets/guybrush.webp" alt=""></div>
-  <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="/src/assets/barco-pirata-footer.webp" alt="" loading="lazy" decoding="async"></div></div></footer>`;
+  <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="./src/assets/guybrush.webp" alt=""></div>
+  <footer><a class="brand" href="#inicio"><div>LA ISLA DE <b>LIRA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" alt="" loading="lazy" decoding="async"></div></div></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
 const loadDeferredImage = image => {
@@ -137,6 +137,9 @@ console.log('%cNo habrás perdido una botella de ron por aquí, verdad?', 'color
 
 const themeAudio = document.getElementById('theme-audio');
 const audioToggle = document.getElementById('audio-toggle');
+const siteHeader = document.querySelector('header');
+const navToggle = document.querySelector('.nav-toggle');
+const siteNav = document.getElementById('site-nav');
 const welcomeCurtain = document.getElementById('welcome-curtain');
 const welcomeContinue = document.getElementById('welcome-continue');
 const welcomeSeenKey = 'lira-welcome-seen';
@@ -201,6 +204,32 @@ welcomeContinue.addEventListener('click', () => {
 syncAudioToggle();
 playTheme();
 if (!welcomeWasSeen) welcomeContinue.focus();
+
+if ('IntersectionObserver' in window && siteHeader) {
+  const headerVisibility = new IntersectionObserver(([entry]) => {
+    audioToggle.classList.toggle('is-header-visible', entry.isIntersecting && entry.intersectionRatio >= .1);
+  }, { threshold: [.1] });
+  headerVisibility.observe(siteHeader);
+} else {
+  audioToggle.classList.add('is-header-visible');
+}
+
+function setMenuOpen(isOpen) {
+  siteHeader.classList.toggle('is-nav-open', isOpen);
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+  navToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+}
+
+navToggle.addEventListener('click', () => setMenuOpen(!siteHeader.classList.contains('is-nav-open')));
+siteNav.addEventListener('click', event => {
+  if (event.target.closest('a')) setMenuOpen(false);
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') setMenuOpen(false);
+});
+document.addEventListener('pointerdown', event => {
+  if (siteHeader.classList.contains('is-nav-open') && !siteHeader.contains(event.target)) setMenuOpen(false);
+});
 
 const progressKey = 'lira-mini-game-progress';
 const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
@@ -377,7 +406,7 @@ function startCoinCatch() {
   let score = 0;
   let seconds = 45;
   field.hidden = false;
-  field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="/src/assets/cofre-pirata-realista.webp" alt=""></span>';
+  field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="./src/assets/cofre-pirata-realista.webp" alt=""></span>';
   const catcherImage = field.querySelector('.catcher img');
   moveCatcher(50);
   field.focus({ preventScroll: true });
@@ -401,7 +430,7 @@ function startCoinCatch() {
     const fallDistance = field.clientHeight + 44;
     const drop = document.createElement('span');
     drop.className = `falling-item ${isCoin ? 'is-coin' : 'is-junk'}`;
-    drop.innerHTML = `<img src="/src/assets/${isCoin ? 'moneda-pirata-realista.webp' : 'bota-pirata-realista.webp'}" alt="">`;
+    drop.innerHTML = `<img src="./src/assets/${isCoin ? 'moneda-pirata-realista.webp' : 'bota-pirata-realista.webp'}" alt="">`;
     drop.style.left = `${left}%`;
     drop.style.setProperty('--fall-duration', `${fallDuration}ms`);
     drop.style.setProperty('--spin-angle', `${spinAngle}deg`);
