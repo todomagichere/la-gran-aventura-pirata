@@ -1,4 +1,4 @@
-# La isla de Lira
+# La gran aventura pirata
 
 Invitación web pirata para la fiesta de cumpleaños de Lira.
 
