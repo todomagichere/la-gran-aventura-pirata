@@ -372,6 +372,23 @@ const progress = JSON.parse(localStorage.getItem(progressKey) || '{}');
 const shuffle = list => [...list].sort(() => Math.random() - 0.5);
 const gameCards = Object.fromEntries([...document.querySelectorAll('.mini-game')].map(card => [card.dataset.game, card]));
 
+function showGameResult(game, message, won) {
+  if (!activeStage || activeStage.stage.querySelector('.game-result')) return;
+  const result = document.createElement('section');
+  result.className = 'game-result';
+  result.setAttribute('role', 'dialog');
+  result.setAttribute('aria-modal', 'true');
+  result.setAttribute('aria-labelledby', 'game-result-title');
+  result.innerHTML = `<div class="game-result__paper"><p class="eyebrow">RESULTADO DE LA MISIÓN</p><h2 id="game-result-title">${won ? '¡MISIÓN COMPLETADA!' : '¡CASI LO TIENES!'}</h2><p>${message}</p><div class="game-result__actions"><button class="gold-btn" type="button" data-result-replay>JUGAR OTRA VEZ</button><button class="game-result__close" type="button" data-result-close>VOLVER A MINIJUEGOS</button></div></div>`;
+  activeStage.stage.append(result);
+  result.querySelector('[data-result-replay]').addEventListener('click', () => {
+    result.remove();
+    startGameRound(game);
+  });
+  result.querySelector('[data-result-close]').addEventListener('click', () => activeStage?.closeStage());
+  result.querySelector('[data-result-replay]').focus();
+}
+
 function updateProgress() {
   const total = Object.keys(progress).length;
   document.getElementById('coin-total').textContent = total;
@@ -386,7 +403,8 @@ function winGame(game, message) {
   updateProgress();
   gameCards[game].querySelector('.game-replay').hidden = false;
   gameCards[game].querySelector('.game-start').hidden = true;
-  gameCards[game].querySelector('.game-footer small').textContent = `${message} · Moneda conseguida`;
+  document.getElementById(`${game}-status`).textContent = `${message} · Moneda conseguida`;
+  showGameResult(game, `${message} Has conseguido una moneda pirata.`, true);
 }
 
 let activeStage;
@@ -394,14 +412,18 @@ function openGameStage(game) {
   if (activeStage) return;
   const card = gameCards[game];
   const marker = document.createComment(`mini-game-${game}`);
+  const status = card.querySelector('.game-footer small');
+  const statusMarker = document.createComment(`game-status-${game}`);
   card.parentNode.insertBefore(marker, card);
+  status.before(statusMarker);
   const stage = document.createElement('section');
   stage.className = 'game-stage';
   stage.setAttribute('role', 'dialog');
   stage.setAttribute('aria-modal', 'true');
   stage.setAttribute('aria-label', `Jugando a ${card.querySelector('h3').textContent}`);
-  stage.innerHTML = `<div class="game-stage__curtain game-stage__curtain--left"></div><div class="game-stage__curtain game-stage__curtain--right"></div><div class="game-stage__content"><button class="stage-close" type="button" aria-label="Volver a minijuegos">← VOLVER A MINIJUEGOS</button><div class="game-stage__slot"></div></div>`;
+  stage.innerHTML = `<div class="game-stage__curtain game-stage__curtain--left"></div><div class="game-stage__curtain game-stage__curtain--right"></div><div class="game-stage__content"><button class="stage-close" type="button" aria-label="Volver a minijuegos">← VOLVER A MINIJUEGOS</button><div class="game-stage__hud"></div><div class="game-stage__slot"></div></div>`;
   document.body.append(stage);
+  stage.querySelector('.game-stage__hud').append(status);
   stage.querySelector('.game-stage__slot').append(card);
   const closeStage = () => {
     if (!activeStage) return;
@@ -410,12 +432,14 @@ function openGameStage(game) {
       clearInterval(treasureTimer);
       clearCoinRound();
       clearParrotRound();
+      stage.querySelector('.game-result')?.remove();
       card.querySelector('.game-start').hidden = false;
       card.querySelector('.game-replay').hidden = true;
       card.querySelectorAll('.treasure-scene, .coin-field, .memory, .parrot-board, .treasure-targets').forEach(element => {
         element.hidden = true;
         if (element.classList.contains('coin-field')) element.innerHTML = '';
       });
+      if (statusMarker.parentNode) statusMarker.replaceWith(status);
       if (marker.parentNode) marker.replaceWith(card);
       stage.remove();
       activeStage = undefined;
@@ -427,8 +451,7 @@ function openGameStage(game) {
   requestAnimationFrame(() => stage.classList.add('is-open'));
 }
 
-function beginGame(game) {
-  openGameStage(game);
+function startGameRound(game) {
   const card = gameCards[game];
   card.querySelector('.game-start').hidden = true;
   card.querySelector('.game-replay').hidden = true;
@@ -436,6 +459,12 @@ function beginGame(game) {
   if (game === 'coins') startCoinCatch();
   if (game === 'memory') startMemory();
   if (game === 'parrot') startParrot();
+}
+
+function beginGame(game) {
+  openGameStage(game);
+  activeStage?.stage.classList.add('is-playing');
+  startGameRound(game);
 }
 
 document.addEventListener('click', event => {
@@ -502,6 +531,7 @@ function startTreasure() {
       clearInterval(treasureTimer);
       status.textContent = 'El tiempo se agotó. ¡Prueba de nuevo!';
       gameCards.treasure.querySelector('.game-replay').hidden = false;
+      showGameResult('treasure', `El tiempo se agotó. Encontraste ${found} de 5 objetos.`, false);
     }
   }, 1000);
 }
@@ -542,7 +572,7 @@ function startCoinCatch() {
   let score = 0;
   let seconds = 45;
   field.hidden = false;
-  field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="./src/assets/cofre-pirata-realista.webp" alt=""></span>';
+  field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="./src/assets/cofre-pirata.7c2f.webp" width="480" height="398" alt=""></span>';
   const catcherImage = field.querySelector('.catcher img');
   moveCatcher(50);
   field.focus({ preventScroll: true });
@@ -566,7 +596,7 @@ function startCoinCatch() {
     const fallDistance = field.clientHeight + 44;
     const drop = document.createElement('span');
     drop.className = `falling-item ${isCoin ? 'is-coin' : 'is-junk'}`;
-    drop.innerHTML = `<img src="./src/assets/${isCoin ? 'moneda-pirata-realista.webp' : 'bota-pirata-realista.webp'}" alt="">`;
+    drop.innerHTML = `<img src="./src/assets/${isCoin ? 'moneda-pirata.7c2f.webp' : 'bota-pirata.7c2f.webp'}" width="320" height="${isCoin ? '320' : '293'}" alt="">`;
     drop.style.left = `${left}%`;
     drop.style.setProperty('--fall-duration', `${fallDuration}ms`);
     drop.style.setProperty('--spin-angle', `${spinAngle}deg`);
@@ -623,6 +653,7 @@ function startCoinCatch() {
       else {
         status.textContent = `Conseguiste ${score} monedas. Necesitas 8 para ganar.`;
         gameCards.coins.querySelector('.game-replay').hidden = false;
+        showGameResult('coins', `Conseguiste ${score} monedas. Necesitas 8 para completar la misión.`, false);
       }
     }
   }, 1000);
@@ -691,6 +722,7 @@ function startParrot() {
       locked = true;
       status.textContent = `¡Casi! Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'}.`;
       gameCards.parrot.querySelector('.game-replay').hidden = false;
+      showGameResult('parrot', `Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'} del loro.`, false);
       return;
     }
     playerStep += 1;
