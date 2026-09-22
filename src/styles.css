@@ -875,9 +875,50 @@ h1 em {
 
 .scene img {
   width: min(122%, 920px);
+  height: auto;
   max-width: none;
   transform: translateX(-5.5%);
   filter: drop-shadow(0 26px 28px rgba(0, 38, 49, .32));
+}
+
+/* El mapa de cabecera permite explorar sus detalles sin abrir otra página. */
+.hero-map {
+  --hero-map-x: 0px;
+  --hero-map-y: 0px;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  touch-action: pan-y;
+}
+
+.hero-map img {
+  display: block;
+  transform-origin: center;
+  transition: transform .28s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-map:hover,
+  .hero-map.is-dragging { cursor: grab; }
+
+  .hero-map:hover img,
+  .hero-map.is-dragging img {
+    transform: translate(var(--hero-map-x), var(--hero-map-y)) scale(1.34);
+  }
+
+  .hero-map.is-dragging { cursor: grabbing; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .hero-map.is-expanded { cursor: zoom-out; }
+
+  .hero-map.is-expanded img {
+    transform: translate(calc(-50% + var(--hero-map-x)), var(--hero-map-y)) scale(1.34);
+  }
 }
 
 .adventure,
@@ -1797,6 +1838,21 @@ h3,
   border: 0;
 }
 
+.map-embed__loading {
+  display: grid;
+  width: 100%;
+  min-height: 460px;
+  place-items: center;
+  border: 0;
+  background:
+    linear-gradient(rgba(4, 36, 45, .74), rgba(4, 36, 45, .74)),
+    #0a6871;
+  color: #fff4d1;
+  font-family: 'Pirata One', 'IM Fell English', Georgia, serif;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: .8px;
+}
+
 .gps-link {
   min-height: 56px;
   font-size: 18px;
@@ -1810,6 +1866,11 @@ h3,
 .map-card {
   width: 80vw;
   max-width: none;
+}
+
+@media (max-width: 560px) {
+  .map-embed iframe,
+  .map-embed__loading { min-height: 340px; height: 340px; }
 }
 
 .features {
@@ -2348,7 +2409,8 @@ h3,
   .mini-game { min-height: 0 !important; }
   .games-progress { align-items: flex-start; flex-wrap: wrap; justify-content: flex-start; }
   .games-progress small { flex-basis: 100%; }
-  .map-embed iframe { height: 260px; }
+  .map-embed iframe,
+  .map-embed__loading { min-height: 260px; height: 260px; }
   #back-top { width: 56px; height: 56px; right: 14px; bottom: 40px; }
 
   .adventure h2,
@@ -2916,6 +2978,7 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
   header nav a:not(.nav-cta) {
     display: block;
     padding: 13px 16px;
+  .map-embed__loading,
     border-bottom: 1px solid rgba(255, 225, 151, .2);
     color: #ffe8ae;
     font-size: 22px;
@@ -3122,3 +3185,20 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
 }
 
 .hero-details .intro { font-size: 52px; }
+
+/* En móvil el mapa es el foco de la cabecera: crece sin alterar su proporción. */
+@media (max-width: 560px) {
+  .scene {
+    width: 100vw;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .scene img {
+    display: block;
+    width: 118vw;
+    height: auto;
+    max-width: none;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }

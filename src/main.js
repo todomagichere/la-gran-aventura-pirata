@@ -12,11 +12,11 @@ root.innerHTML = `
   <header><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><button class="nav-toggle" type="button" aria-label="Abrir menú" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span></button><nav id="site-nav"><a href="#aventura">Bitácora</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
   <main>
     <section class="hero" id="inicio"><div class="hero-copy"><h1>LA GRAN AVENTURA <em>PIRATA</em></h1></div>
-      <div class="scene"><img src="./src/assets/mapa_del_tesoro.webp" alt="Mapa del tesoro de la Capitana Lira." /></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
+      <div class="scene"><button class="hero-map" id="hero-map" type="button" aria-label="Ampliar y explorar el mapa del tesoro" aria-expanded="false"><img src="./src/assets/mapa-del-tesoro.7c2f.webp" srcset="./src/assets/mapa-del-tesoro.mobile.7c2f.webp 960w, ./src/assets/mapa-del-tesoro.7c2f.webp 1280w" sizes="(max-width: 560px) 118vw, (max-width: 900px) 110vw, 920px" width="1280" height="876" fetchpriority="high" decoding="async" alt="Mapa del tesoro de la Capitana Lira." /></button></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
     </section>
     <section class="countdown map-section" aria-labelledby="countdown-title"><div class="countdown__card map-card"><h2 id="countdown-title">FALTAN...</h2><div class="countdown__units" role="timer" aria-live="polite" aria-atomic="true"><div><b id="countdown-days">00</b><span>DÍAS</span></div><div><b id="countdown-hours">00</b><span>HORAS</span></div><div><b id="countdown-minutes">00</b><span>MINUTOS</span></div><div><b id="countdown-seconds">00</b><span>SEGUNDOS</span></div></div><p class="countdown__status" id="countdown-status">Hasta el 24 de octubre de 2026 · 11:00 h</p></div></section>
     <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
-    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="./src/assets/ruta-isla.webp" alt="Isla del tesoro" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed"><iframe title="Mapa de L’Olivera Casa Rural y Terrassa" src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
+    <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="./src/assets/ruta-isla.webp" alt="Isla del tesoro" width="256" height="256" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed" data-map-src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" aria-label="Mapa de L’Olivera Casa Rural y Terrassa"><div class="map-embed__loading">PREPARANDO EL MAPA...</div></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
       <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
       <article class="game-card mini-game" data-game="coins"><div class="game-title"><span class="game-icon">💰</span><div><p>ATRAPA MONEDAS</p><h3>El cofre veloz</h3></div></div><p class="hint">Mueve el cofre con el ratón, el dedo o las flechas. Atrapa oro y evita las botas.</p><button class="game-start" data-start="coins">JUGAR</button><div class="coin-field" id="coin-field" hidden tabindex="0" aria-label="Atrapa las monedas con las flechas izquierda y derecha"></div><div class="game-footer"><small id="coins-status">45 segundos · 0 monedas</small><button class="game-replay" data-replay="coins" hidden>Jugar otra vez ↻</button></div></article>
@@ -213,6 +213,108 @@ if ('IntersectionObserver' in window && siteHeader) {
   headerVisibility.observe(siteHeader);
 } else {
   audioToggle.classList.add('is-header-visible');
+}
+
+const mapEmbed = document.querySelector('[data-map-src]');
+function loadMapEmbed() {
+  if (!mapEmbed || mapEmbed.dataset.mapLoaded) return;
+  mapEmbed.dataset.mapLoaded = 'true';
+    const iframe = document.createElement('iframe');
+    iframe.title = 'Mapa de L’Olivera Casa Rural y Terrassa';
+    iframe.src = mapEmbed.dataset.mapSrc;
+    iframe.loading = 'eager';
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    mapEmbed.replaceChildren(iframe);
+}
+
+if ('IntersectionObserver' in window && mapEmbed) {
+  const mapObserver = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    loadMapEmbed();
+    mapObserver.disconnect();
+  }, { rootMargin: '720px 0px' });
+  mapObserver.observe(mapEmbed);
+} else {
+  window.addEventListener('load', loadMapEmbed, { once: true });
+}
+
+const heroMap = document.getElementById('hero-map');
+const heroMapImage = heroMap?.querySelector('img');
+const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)');
+let heroMapPointer;
+let heroMapPan = { x: 0, y: 0 };
+let suppressHeroMapClick = false;
+
+function updateHeroMapPan() {
+  if (!heroMap || !heroMapImage) return;
+  heroMap.style.setProperty('--hero-map-x', `${heroMapPan.x}px`);
+  heroMap.style.setProperty('--hero-map-y', `${heroMapPan.y}px`);
+}
+
+function resetHeroMapPan() {
+  heroMapPan = { x: 0, y: 0 };
+  updateHeroMapPan();
+}
+
+function setHeroMapExpanded(expanded) {
+  if (!heroMap) return;
+  heroMap.classList.toggle('is-expanded', expanded);
+  heroMap.setAttribute('aria-expanded', String(expanded));
+  if (!expanded) resetHeroMapPan();
+}
+
+function heroMapIsZoomed() {
+  return Boolean(heroMap?.classList.contains('is-expanded') || heroMap?.classList.contains('is-dragging') || (hoverCapable.matches && heroMap?.matches(':hover')));
+}
+
+function clampHeroMapPan() {
+  if (!heroMap || !heroMapImage) return;
+  const scale = 1.34;
+  const frame = heroMap.getBoundingClientRect();
+  const maxX = Math.max(0, (heroMapImage.offsetWidth * scale - frame.width) / 2);
+  const maxY = Math.max(0, (heroMapImage.offsetHeight * scale - frame.height) / 2);
+  heroMapPan.x = Math.max(-maxX, Math.min(maxX, heroMapPan.x));
+  heroMapPan.y = Math.max(-maxY, Math.min(maxY, heroMapPan.y));
+}
+
+if (heroMap && heroMapImage) {
+  heroMap.addEventListener('pointerdown', event => {
+    heroMapPointer = { id: event.pointerId, x: event.clientX, y: event.clientY, panX: heroMapPan.x, panY: heroMapPan.y, moved: false };
+    heroMap.setPointerCapture(event.pointerId);
+  });
+
+  heroMap.addEventListener('pointermove', event => {
+    if (!heroMapPointer || heroMapPointer.id !== event.pointerId) return;
+    const deltaX = event.clientX - heroMapPointer.x;
+    const deltaY = event.clientY - heroMapPointer.y;
+    if (Math.hypot(deltaX, deltaY) > 6) heroMapPointer.moved = true;
+    if (!heroMapPointer.moved || !heroMapIsZoomed()) return;
+    heroMap.classList.add('is-dragging');
+    heroMapPan.x = heroMapPointer.panX + deltaX;
+    heroMapPan.y = heroMapPointer.panY + deltaY;
+    clampHeroMapPan();
+    updateHeroMapPan();
+    event.preventDefault();
+  });
+
+  const finishHeroMapPointer = event => {
+    if (!heroMapPointer || heroMapPointer.id !== event.pointerId) return;
+    if (heroMapPointer.moved) suppressHeroMapClick = true;
+    heroMap.classList.remove('is-dragging');
+    heroMapPointer = undefined;
+  };
+  heroMap.addEventListener('pointerup', finishHeroMapPointer);
+  heroMap.addEventListener('pointercancel', finishHeroMapPointer);
+
+  heroMap.addEventListener('click', event => {
+    if (suppressHeroMapClick) {
+      suppressHeroMapClick = false;
+      event.preventDefault();
+      return;
+    }
+    if (hoverCapable.matches) return;
+    setHeroMapExpanded(!heroMap.classList.contains('is-expanded'));
+  });
 }
 
 function setMenuOpen(isOpen) {
