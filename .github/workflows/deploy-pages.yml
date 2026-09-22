@@ -29,10 +29,36 @@ jobs:
         with:
           enablement: true
 
+      - name: Prepare optimized site artifact
+        run: |
+          mkdir _site
+          rsync -a \
+            --no-owner \
+            --no-group \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude 'compose.yaml' \
+            --exclude 'Dockerfile' \
+            --exclude 'nginx.conf' \
+            --exclude 'package.json' \
+            --exclude 'README.md' \
+            --exclude 'src/assets/bota-pirata-realista.webp' \
+            --exclude 'src/assets/cofre-pirata-realista.webp' \
+            --exclude 'src/assets/iconos-piratas-reales.webp' \
+            --exclude 'src/assets/mapa_del_tesoro.webp' \
+            --exclude 'src/assets/moneda-pirata-realista.webp' \
+            --exclude 'src/assets/parejas-oceano-sprite.webp' \
+            --exclude 'src/assets/pergamino-laterales-transparentes.webp' \
+            --exclude 'src/assets/pergamino_transparente.webp' \
+            --exclude 'src/assets/ruta-casa.webp' \
+            --exclude 'src/assets/ruta-tesoro-x.webp' \
+            ./ _site/
+
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
