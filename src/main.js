@@ -786,7 +786,10 @@ function renderMemory() {
   document.getElementById('memory-status').textContent = `${matched.length} de 8 parejas encontradas`;
 }
 function startMemory() {
-  deck = shuffle([...memoryCards, ...memoryCards].map((card, id) => ({ ...card, id })));
+  deck = shuffle(memoryCards.flatMap(card => [
+    { ...card, id: `${card.key}-a`, pairKey: card.key },
+    { ...card, id: `${card.key}-b`, pairKey: card.key }
+  ]));
   open = []; matched = []; memoryLock = false;
   document.getElementById('memory').hidden = false;
   renderMemory();
@@ -794,14 +797,14 @@ function startMemory() {
 document.getElementById('memory').addEventListener('click', event => {
   const button = event.target.closest('button');
   if (!button || memoryLock || open.length === 2) return;
-  const id = Number(button.dataset.id), card = deck.find(item => item.id === id);
+  const id = button.dataset.id, card = deck.find(item => item.id === id);
   if (open.includes(id) || matched.includes(card.key)) return;
   open.push(id); renderMemory();
   if (open.length !== 2) return;
   const pair = deck.filter(item => open.includes(item.id));
   memoryLock = true;
   setTimeout(() => {
-    if (pair[0].key === pair[1].key) matched.push(pair[0].key);
+    if (pair[0].pairKey === pair[1].pairKey) matched.push(pair[0].key);
     open = []; memoryLock = false; renderMemory();
     if (matched.length === memoryCards.length) winGame('memory', '¡Completaste todas las parejas!');
   }, pair[0].key === pair[1].key ? 450 : 760);

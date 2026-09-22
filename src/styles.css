@@ -3355,14 +3355,14 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
 
 @media (max-width: 560px) {
   .game-stage {
-    place-items: stretch;
+    place-items: center;
     overflow: hidden;
     padding: 0;
   }
 
   .game-stage__content {
-    width: 100%;
-    height: 100%;
+    width: 90vw;
+    height: 100dvh;
     max-height: none;
     grid-template-rows: auto auto minmax(0, 1fr);
   }
@@ -3412,5 +3412,10 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
     flex: 0 0 auto;
     font-size: 15px;
     gap: 4px 10px;
+  }
+
+  .game-result__paper {
+    width: min(92%, 460px);
+    padding: 48px 10%;
   }
 }
