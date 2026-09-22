@@ -2,7 +2,7 @@
 const root = document.getElementById('root');
 
 root.innerHTML = `
-  <audio id="theme-audio" src="./src/assets/monkey_island_main_theme.m4a" loop preload="metadata" playsinline></audio>
+  <audio id="theme-audio" data-src="./src/assets/monkey_island_main_theme.m4a" loop preload="none" playsinline></audio>
   <section class="welcome-curtain" id="welcome-curtain" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
     <div class="welcome-curtain__panel welcome-curtain__panel--left" aria-hidden="true"></div>
     <div class="welcome-curtain__panel welcome-curtain__panel--right" aria-hidden="true"></div>
@@ -26,7 +26,7 @@ root.innerHTML = `
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option value="asistirá a la fiesta">¡Sí, allí estaré!</option><option value="no asistirá a la fiesta">No podré embarcar</option><option value="aún no sabe si asistirá a la fiesta">Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR POR WHATSAPP <span>→</span></button></form></div></section>
   </main>
   <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="./src/assets/guybrush.webp" alt=""></div>
-  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" alt="" loading="lazy" decoding="async"></div></div></footer>`;
+  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></div></div></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
 const loadDeferredImage = image => {
@@ -98,7 +98,28 @@ function startFooterWaves() {
     speed: .42
   });
 }
-window.addEventListener('load', startFooterWaves, { once: true });
+
+function loadFooterWaves() {
+  if (document.documentElement.dataset.footerWavesLoaded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.dataset.footerWavesLoaded = 'true';
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/wavify@1.0.0/wavify.js';
+  script.async = true;
+  script.onload = startFooterWaves;
+  document.head.append(script);
+}
+
+const footerWater = document.getElementById('footer-water');
+if ('IntersectionObserver' in window && footerWater) {
+  const footerObserver = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting)) return;
+    loadFooterWaves();
+    footerObserver.disconnect();
+  }, { rootMargin: '240px 0px' });
+  footerObserver.observe(footerWater);
+} else {
+  window.addEventListener('load', loadFooterWaves, { once: true });
+}
 
 
 console.log(String.raw`
@@ -147,6 +168,7 @@ const welcomeSeenKey = 'lira-welcome-seen';
 const welcomeWasSeen = localStorage.getItem(welcomeSeenKey) === 'yes';
 let musicEnabled = false;
 let themeHasPlayed = false;
+let audioSourceLoaded = false;
 themeAudio.volume = 0.25;
 if (welcomeWasSeen) {
   welcomeCurtain.remove();
@@ -165,6 +187,10 @@ function syncAudioToggle() {
 
 async function playTheme() {
   if (!musicEnabled) return;
+  if (!audioSourceLoaded) {
+    themeAudio.src = themeAudio.dataset.src;
+    audioSourceLoaded = true;
+  }
   try {
     await themeAudio.play();
   } catch {
@@ -824,3 +850,9 @@ backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smo
 window.addEventListener('scroll', syncBackTopVisibility, { passive: true });
 window.addEventListener('resize', syncBackTopVisibility);
 syncBackTopVisibility();
+
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js?v=1').catch(() => {});
+  }, { once: true });
+}
