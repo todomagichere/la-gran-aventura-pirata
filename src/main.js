@@ -167,6 +167,7 @@ const welcomeWasSeen = localStorage.getItem(welcomeSeenKey) === 'yes';
 let musicEnabled = false;
 let themeHasPlayed = false;
 let audioSourceLoaded = false;
+let gameAudioContext;
 themeAudio.volume = 0.25;
 if (welcomeWasSeen) {
   welcomeCurtain.remove();
@@ -181,6 +182,39 @@ function syncAudioToggle() {
   audioToggle.setAttribute('aria-pressed', String(playing));
   audioToggle.setAttribute('aria-label', playing ? 'Silenciar música' : 'Activar música');
   audioToggle.title = playing ? 'Silenciar música' : 'Activar música';
+}
+
+function playGameSound(name) {
+  if (!musicEnabled) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  if (!gameAudioContext) gameAudioContext = new AudioContext();
+  if (gameAudioContext.state === 'suspended') gameAudioContext.resume();
+
+  const sounds = {
+    start: { tones: [[440, 0, .09], [660, .1, .13]], type: 'triangle', volume: .045 },
+    flip: { tones: [[520, 0, .07]], type: 'sine', volume: .035 },
+    find: { tones: [[784, 0, .09], [1047, .09, .14]], type: 'sine', volume: .065 },
+    match: { tones: [[523, 0, .08], [659, .08, .08], [784, .16, .14]], type: 'triangle', volume: .055 },
+    error: { tones: [[196, 0, .13], [147, .1, .18]], type: 'sawtooth', volume: .035 },
+    timeout: { tones: [[330, 0, .1], [294, .11, .1], [262, .22, .18]], type: 'triangle', volume: .045 },
+    win: { tones: [[523, 0, .1], [659, .11, .1], [784, .22, .1], [1047, .34, .24]], type: 'triangle', volume: .065 }
+  };
+  const sound = sounds[name];
+  if (!sound) return;
+  const now = gameAudioContext.currentTime;
+  sound.tones.forEach(([frequency, delay, duration]) => {
+    const oscillator = gameAudioContext.createOscillator();
+    const gain = gameAudioContext.createGain();
+    oscillator.type = sound.type;
+    oscillator.frequency.setValueAtTime(frequency, now + delay);
+    gain.gain.setValueAtTime(.0001, now + delay);
+    gain.gain.exponentialRampToValueAtTime(sound.volume, now + delay + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + delay + duration);
+    oscillator.connect(gain).connect(gameAudioContext.destination);
+    oscillator.start(now + delay);
+    oscillator.stop(now + delay + duration + .02);
+  });
 }
 
 async function playTheme() {
@@ -420,6 +454,7 @@ function updateProgress() {
 }
 
 function winGame(game, message) {
+  playGameSound('win');
   if (!progress[game]) {
     progress[game] = true;
     localStorage.setItem(progressKey, JSON.stringify(progress));
@@ -479,6 +514,7 @@ function startGameRound(game) {
   const card = gameCards[game];
   card.querySelector('.game-start').hidden = true;
   card.querySelector('.game-replay').hidden = true;
+  playGameSound('start');
   if (game === 'treasure') startTreasure();
   if (game === 'coins') startCoinCatch();
   if (game === 'memory') startMemory();
@@ -537,11 +573,13 @@ function startTreasure() {
     if (!item || item.classList.contains('found')) return;
     if (item.dataset.treasure === 'false') {
       item.classList.add('found', 'mistake');
+      playGameSound('error');
       seconds = Math.max(0, seconds - 3);
       status.textContent = `Eso no es un tesoro · ${found} de 5 · ${seconds} s`;
       return;
     }
     item.classList.add('found');
+    playGameSound('find');
     found += 1;
     if (found === treasures.length) {
       clearInterval(treasureTimer);
@@ -553,6 +591,7 @@ function startTreasure() {
     status.textContent = `${found} de 5 objetos · ${seconds} s`;
     if (seconds <= 0) {
       clearInterval(treasureTimer);
+      playGameSound('timeout');
       status.textContent = 'El tiempo se agotó. ¡Prueba de nuevo!';
       gameCards.treasure.querySelector('.game-replay').hidden = false;
       showGameResult('treasure', `El tiempo se agotó. Encontraste ${found} de 5 objetos.`, false);
@@ -573,21 +612,7 @@ function moveCatcher(position) {
 }
 
 function playCoinSound() {
-  if (!musicEnabled) return;
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return;
-  const context = new AudioContext();
-  const now = context.currentTime;
-  [880, 1320].forEach((frequency, index) => {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = 'sine'; oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(.0001, now + index * .045);
-    gain.gain.exponentialRampToValueAtTime(.12, now + index * .045 + .012);
-    gain.gain.exponentialRampToValueAtTime(.0001, now + index * .045 + .18);
-    oscillator.connect(gain).connect(context.destination);
-    oscillator.start(now + index * .045); oscillator.stop(now + index * .045 + .2);
-  });
+  playGameSound('find');
 }
 function startCoinCatch() {
   clearCoinRound();
@@ -646,7 +671,10 @@ function startCoinCatch() {
         playCoinSound();
         coinTimeouts.push(setTimeout(() => drop.remove(), 260));
       } else {
-        if (caught) score = Math.max(0, score - 1);
+        if (caught) {
+          score = Math.max(0, score - 1);
+          playGameSound('error');
+        }
         drop.remove();
       }
       status.textContent = `${seconds} s · ${score} monedas`;
@@ -675,6 +703,7 @@ function startCoinCatch() {
       clearCoinRound();
       if (score >= 8) winGame('coins', `¡Atrapaste ${score} monedas!`);
       else {
+        playGameSound('timeout');
         status.textContent = `Conseguiste ${score} monedas. Necesitas 8 para ganar.`;
         gameCards.coins.querySelector('.game-replay').hidden = false;
         showGameResult('coins', `Conseguiste ${score} monedas. Necesitas 8 para completar la misión.`, false);
@@ -694,17 +723,18 @@ function playParrotTone(note) {
   if (!musicEnabled) return;
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
-  const context = new AudioContext();
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
+  if (!gameAudioContext) gameAudioContext = new AudioContext();
+  if (gameAudioContext.state === 'suspended') gameAudioContext.resume();
+  const oscillator = gameAudioContext.createOscillator();
+  const gain = gameAudioContext.createGain();
   oscillator.type = 'triangle';
   oscillator.frequency.value = [392, 494, 587, 698][note];
-  gain.gain.setValueAtTime(.0001, context.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.075, context.currentTime + .018);
-  gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .28);
-  oscillator.connect(gain).connect(context.destination);
+  gain.gain.setValueAtTime(.0001, gameAudioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.075, gameAudioContext.currentTime + .018);
+  gain.gain.exponentialRampToValueAtTime(.0001, gameAudioContext.currentTime + .28);
+  oscillator.connect(gain).connect(gameAudioContext.destination);
   oscillator.start();
-  oscillator.stop(context.currentTime + .3);
+  oscillator.stop(gameAudioContext.currentTime + .3);
 }
 
 function startParrot() {
@@ -744,6 +774,7 @@ function startParrot() {
     flash(note);
     if (note !== sequence[playerStep]) {
       locked = true;
+      playGameSound('error');
       status.textContent = `¡Casi! Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'}.`;
       gameCards.parrot.querySelector('.game-replay').hidden = false;
       showGameResult('parrot', `Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'} del loro.`, false);
@@ -797,12 +828,15 @@ document.getElementById('memory').addEventListener('click', event => {
   if (!button || memoryLock || open.length === 2) return;
   const id = button.dataset.id, card = deck.find(item => item.id === id);
   if (open.includes(id) || matched.includes(card.key)) return;
-  open.push(id); renderMemory();
+  open.push(id); playGameSound('flip'); renderMemory();
   if (open.length !== 2) return;
   const pair = deck.filter(item => open.includes(item.id));
   memoryLock = true;
   setTimeout(() => {
-    if (pair[0].pairKey === pair[1].pairKey) matched.push(pair[0].key);
+    if (pair[0].pairKey === pair[1].pairKey) {
+      matched.push(pair[0].key);
+      playGameSound('match');
+    } else playGameSound('error');
     open = []; memoryLock = false; renderMemory();
     if (matched.length === memoryCards.length) winGame('memory', '¡Completaste todas las parejas!');
   }, pair[0].key === pair[1].key ? 450 : 760);
