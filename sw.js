@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lira-static-v2';
+const CACHE_NAME = 'lira-static-v3';
 const CACHEABLE_DESTINATIONS = new Set(['font', 'image', 'script', 'style']);
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -17,12 +17,11 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET' || url.origin !== self.location.origin || !CACHEABLE_DESTINATIONS.has(request.destination)) return;
 
   event.respondWith(
-    caches.match(request).then(cached => {
-      const network = fetch(request).then(response => {
+    fetch(request, { cache: 'no-store' })
+      .then(response => {
         if (response.ok) caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
         return response;
-      });
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(request))
   );
 });
