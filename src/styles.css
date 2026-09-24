@@ -2671,7 +2671,7 @@ h3,
 
 .game-stage.is-playing .treasure-targets {
   flex: 0 0 auto;
-  margin: 0;
+  margin: clamp(12px, 2vh, 20px) 0 0;
   font-size: clamp(14px, 2vh, 18px);
 }
 
@@ -3609,7 +3609,7 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
 
 .game-stage.is-playing .treasure-targets {
   flex: 0 0 auto;
-  margin: 0;
+  margin: clamp(12px, 2vh, 20px) 0 0;
   font-size: clamp(14px, 2vh, 18px);
 }
 
