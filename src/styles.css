@@ -2638,6 +2638,29 @@ h3,
   text-align: right;
 }
 
+.game-stage__hud > small {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.game-stage .game-status__copy {
+  min-width: 0;
+  text-align: left;
+}
+
+.game-footer .game-status__copy::after { content: ' · '; }
+.game-stage .game-status__copy::after { content: ''; }
+
+.game-stage .game-status__timer {
+  flex: 0 0 4ch;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
 .game-stage__slot {
   min-height: 0;
   display: flex;

@@ -467,6 +467,16 @@ function winGame(game, message) {
   showGameResult(game, `${message} Has conseguido una moneda pirata.`, true);
 }
 
+function setTimedGameStatus(status, message, seconds) {
+  const copy = document.createElement('span');
+  const timer = document.createElement('span');
+  copy.className = 'game-status__copy';
+  timer.className = 'game-status__timer';
+  copy.textContent = message;
+  timer.textContent = `${seconds} s`;
+  status.replaceChildren(copy, timer);
+}
+
 let activeStage;
 function openGameStage(game) {
   if (activeStage) return;
@@ -568,7 +578,7 @@ function startTreasure() {
   targetList.hidden = false;
   scene.hidden = false;
   scene.innerHTML = sceneItems.map((item, index) => `<button class="hidden-treasure${item.isTreasure ? '' : ' is-distraction'}" data-treasure="${item.isTreasure}" data-item="${index}" style="--x:${6 + Math.random() * 88}%;--y:${8 + Math.random() * 80}%" aria-label="${item.isTreasure ? `Tesoro: ${item.name}` : 'Objeto que no es un tesoro'}"><i class="real-icon real-icon--${item.icon}" aria-hidden="true"></i></button>`).join('');
-  status.textContent = `0 de 5 objetos · ${seconds} s`;
+  setTimedGameStatus(status, '0 de 5 objetos', seconds);
   scene.onclick = event => {
     const item = event.target.closest('[data-item]');
     if (!item || item.classList.contains('found')) return;
@@ -576,7 +586,7 @@ function startTreasure() {
       item.classList.add('found', 'mistake');
       playGameSound('error');
       seconds = Math.max(0, seconds - 3);
-      status.textContent = `Eso no es un tesoro · ${found} de 5 · ${seconds} s`;
+      setTimedGameStatus(status, `Eso no es un tesoro · ${found} de 5`, seconds);
       return;
     }
     item.classList.add('found');
@@ -585,15 +595,15 @@ function startTreasure() {
     if (found === treasures.length) {
       clearInterval(treasureTimer);
       winGame('treasure', '¡Encontraste los 5 objetos!');
-    } else status.textContent = `${found} de 5 objetos · ${seconds} s`;
+    } else setTimedGameStatus(status, `${found} de 5 objetos`, seconds);
   };
   treasureTimer = setInterval(() => {
     seconds -= 1;
-    status.textContent = `${found} de 5 objetos · ${seconds} s`;
+    setTimedGameStatus(status, `${found} de 5 objetos`, seconds);
     if (seconds <= 0) {
       clearInterval(treasureTimer);
       playGameSound('timeout');
-      status.textContent = 'El tiempo se agotó. ¡Prueba de nuevo!';
+      setTimedGameStatus(status, 'El tiempo se agotó. ¡Prueba de nuevo!', seconds);
       gameCards.treasure.querySelector('.game-replay').hidden = false;
       showGameResult('treasure', `El tiempo se agotó. Encontraste ${found} de 5 objetos.`, false);
     }
@@ -622,6 +632,7 @@ function startCoinCatch() {
   let score = 0;
   let seconds = 45;
   field.hidden = false;
+  setTimedGameStatus(status, `${score} monedas`, seconds);
   field.innerHTML = '<span class="catcher" id="catcher" aria-hidden="true"><img src="./src/assets/cofre-pirata.7c2f.webp" width="480" height="398" alt=""></span>';
   const catcherImage = field.querySelector('.catcher img');
   moveCatcher(50);
@@ -678,7 +689,7 @@ function startCoinCatch() {
         }
         drop.remove();
       }
-      status.textContent = `${seconds} s · ${score} monedas`;
+      setTimedGameStatus(status, `${score} monedas`, seconds);
     };
     const checkCollision = () => {
       coinFrames.delete(collisionFrame);
@@ -699,13 +710,13 @@ function startCoinCatch() {
   spawn(); coinSpawner = setInterval(spawn, 680);
   coinTimer = setInterval(() => {
     seconds -= 1;
-    status.textContent = `${seconds} s · ${score} monedas`;
+    setTimedGameStatus(status, `${score} monedas`, seconds);
     if (seconds <= 0) {
       clearCoinRound();
       if (score >= 8) winGame('coins', `¡Atrapaste ${score} monedas!`);
       else {
         playGameSound('timeout');
-        status.textContent = `Conseguiste ${score} monedas. Necesitas 8 para ganar.`;
+        setTimedGameStatus(status, `Conseguiste ${score} monedas. Necesitas 8 para ganar.`, seconds);
         gameCards.coins.querySelector('.game-replay').hidden = false;
         showGameResult('coins', `Conseguiste ${score} monedas. Necesitas 8 para completar la misión.`, false);
       }
@@ -889,6 +900,6 @@ syncBackTopVisibility();
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=20260924T090729545', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=20260924T092005540', { updateViaCache: 'none' }).catch(() => {});
   }, { once: true });
 }
