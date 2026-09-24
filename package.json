@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "python3 -m http.server 4173",
-    "check": "node --check src/main.js"
+    "check": "node --check src/main.js",
+    "bump:assets": "node scripts/bump-asset-version.mjs"
   }
 }

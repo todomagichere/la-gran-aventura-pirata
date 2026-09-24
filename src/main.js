@@ -888,6 +888,6 @@ syncBackTopVisibility();
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=3', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=20260924T085800466', { updateViaCache: 'none' }).catch(() => {});
   }, { once: true });
 }

@@ -45,3 +45,7 @@ npm run dev
 ```
 
 El portal estará disponible igualmente en <http://localhost:4173>.
+
+## Publicar cambios
+
+Antes de subir cambios a `main`, ejecuta `npm run bump:assets`. El comando actualiza la versión de CSS, JavaScript y del service worker para que los visitantes reciban los recursos de la nueva publicación.
