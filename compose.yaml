@@ -6,6 +6,7 @@ services:
       - "4173:80"
     volumes:
       - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./robots.txt:/usr/share/nginx/html/robots.txt:ro
       - ./sw.js:/usr/share/nginx/html/sw.js:ro
       - ./src:/usr/share/nginx/html/src:ro
     restart: unless-stopped
