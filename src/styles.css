@@ -3055,32 +3055,54 @@ footer > :not(#footer-water):not(#back-top) { position: relative; z-index: 3; }
   bottom: 12px;
   left: -170px;
   width: clamp(96px, 11vw, 150px);
-  pointer-events: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
   animation: footer-ship-sail 60s linear infinite;
 }
+
+.footer-ship__art {
+  display: block;
+  --ship-facing: 1;
+  transform: scaleX(var(--ship-facing));
+  transform-origin: center;
+  transform-style: preserve-3d;
+  animation: footer-ship-bob 6s ease-in-out infinite;
+}
+
+.footer-ship.is-returning .footer-ship__art { --ship-facing: -1; }
+.footer-ship.is-turning .footer-ship__art { animation: footer-ship-turn .5s ease-in-out both; }
 
 .footer-ship img {
   display: block;
   width: 100%;
   height: auto;
   filter: drop-shadow(0 4px 3px rgba(0, 22, 31, .62));
-  animation: footer-ship-bob 6s ease-in-out infinite;
 }
+
+.footer-ship:focus-visible { outline: 3px solid #ffe181; outline-offset: 4px; }
 
 @keyframes footer-ship-sail {
   to { transform: translateX(calc(100vw + 340px)); }
 }
 
 @keyframes footer-ship-bob {
-  0%, 100% { transform: translateY(1px) rotate(-2deg); }
-  25% { transform: translateY(-4px) rotate(2deg); }
-  50% { transform: translateY(2px) rotate(-1.5deg); }
-  75% { transform: translateY(-3px) rotate(1.5deg); }
+  0%, 100% { transform: translateY(1px) rotate(-2deg) scaleX(var(--ship-facing)); }
+  25% { transform: translateY(-4px) rotate(2deg) scaleX(var(--ship-facing)); }
+  50% { transform: translateY(2px) rotate(-1.5deg) scaleX(var(--ship-facing)); }
+  75% { transform: translateY(-3px) rotate(1.5deg) scaleX(var(--ship-facing)); }
+}
+
+@keyframes footer-ship-turn {
+  from { transform: scaleX(var(--ship-facing)); }
+  to { transform: rotateY(var(--ship-turn)) scaleX(var(--ship-facing)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .footer-ship { left: calc(50% - 65px); animation: none; }
-  .footer-ship img { animation: none; }
+  .footer-ship__art { animation: none; }
 }
 
 /* Ajuste móvil final: conserva jerarquía, legibilidad y márgenes de toque sin

@@ -26,7 +26,7 @@ root.innerHTML = `
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option value="asistirá a la fiesta">¡Sí, allí estaré!</option><option value="no asistirá a la fiesta">No podré embarcar</option><option value="aún no sabe si asistirá a la fiesta">Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR POR WHATSAPP <span>→</span></button></form></div></section>
   </main>
   <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="./src/assets/guybrush.webp" alt=""></div>
-  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg class="footer-waves footer-waves--back" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 6 50 18 T100 18 V60 H0 Z"></path></svg><svg class="footer-waves footer-waves--middle" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave" d="M0 32 Q25 22 50 32 T100 32 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></div><svg class="footer-waves footer-waves--front" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-front" d="M0 43 Q25 35 50 43 T100 43 V60 H0 Z"></path></svg></div></footer>`;
+  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water"><svg class="footer-waves footer-waves--back" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave-back" d="M0 18 Q25 6 50 18 T100 18 V60 H0 Z"></path></svg><svg class="footer-waves footer-waves--middle" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave" d="M0 32 Q25 22 50 32 T100 32 V60 H0 Z"></path></svg><button class="footer-ship" id="footer-ship" type="button" aria-label="Cambiar la dirección del barco"><span class="footer-ship__art"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></span></button><svg class="footer-waves footer-waves--front" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave-front" d="M0 43 Q25 35 50 43 T100 43 V60 H0 Z"></path></svg></div></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
 const loadDeferredImage = image => {
@@ -108,6 +108,26 @@ function loadFooterWaves() {
 }
 
 const footerWater = document.getElementById('footer-water');
+const footerShip = document.getElementById('footer-ship');
+let footerShipReturning = false;
+let footerShipTurning = false;
+
+footerShip?.addEventListener('click', () => {
+  if (footerShipTurning) return;
+  footerShipTurning = true;
+  footerShip.style.setProperty('--ship-turn', footerShipReturning ? '-180deg' : '180deg');
+  footerShip.classList.add('is-turning');
+  setTimeout(() => {
+    footerShipReturning = !footerShipReturning;
+    footerShip.classList.toggle('is-returning', footerShipReturning);
+    const sailAnimation = footerShip.getAnimations().find(animation => animation.animationName === 'footer-ship-sail');
+    if (sailAnimation) sailAnimation.playbackRate = footerShipReturning ? -1 : 1;
+    footerShip.classList.remove('is-turning');
+    footerShip.setAttribute('aria-label', footerShipReturning ? 'El barco navega hacia la izquierda. Cambiar dirección' : 'El barco navega hacia la derecha. Cambiar dirección');
+    footerShipTurning = false;
+  }, 500);
+});
+
 if ('IntersectionObserver' in window && footerWater) {
   const footerObserver = new IntersectionObserver(entries => {
     if (!entries.some(entry => entry.isIntersecting)) return;
@@ -900,6 +920,6 @@ syncBackTopVisibility();
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=20260924T092005540', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=20260924T092546064', { updateViaCache: 'none' }).catch(() => {});
   }, { once: true });
 }
