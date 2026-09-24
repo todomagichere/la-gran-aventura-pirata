@@ -26,7 +26,7 @@ root.innerHTML = `
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option value="asistirá a la fiesta">¡Sí, allí estaré!</option><option value="no asistirá a la fiesta">No podré embarcar</option><option value="aún no sabe si asistirá a la fiesta">Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR POR WHATSAPP <span>→</span></button></form></div></section>
   </main>
   <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="./src/assets/guybrush.webp" alt=""></div>
-  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 7 50 18 T100 18 V60 H0 Z"></path><path id="footer-wave" d="M0 38 Q25 29 50 38 T100 38 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></div></div></footer>`;
+  <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water" aria-hidden="true"><svg class="footer-waves footer-waves--back" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-back" d="M0 18 Q25 6 50 18 T100 18 V60 H0 Z"></path></svg><svg class="footer-waves footer-waves--middle" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave" d="M0 32 Q25 22 50 32 T100 32 V60 H0 Z"></path></svg><div class="footer-ship"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></div><svg class="footer-waves footer-waves--front" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path id="footer-wave-front" d="M0 43 Q25 35 50 43 T100 43 V60 H0 Z"></path></svg></div></footer>`;
 
 const deferredImages = document.querySelectorAll('img[data-src]');
 const loadDeferredImage = image => {
@@ -77,36 +77,34 @@ function replaceEmojisWithRealImages(container = root) {
 }
 replaceEmojisWithRealImages();
 
+function drawFooterWave(path, baseline, amplitude, phase) {
+  const points = [];
+  for (let x = 0; x <= 100; x += 4) {
+    const y = baseline + Math.sin((x / 100) * Math.PI * 4 + phase) * amplitude;
+    points.push(`${x} ${y.toFixed(2)}`);
+  }
+  path.setAttribute('d', `M${points.join(' L')} V60 H0 Z`);
+}
+
 function startFooterWaves() {
   const wave = document.getElementById('footer-wave');
   const backWave = document.getElementById('footer-wave-back');
-  if (!wave || !backWave || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !window.wavify) return;
-  window.wavify(backWave, {
-    container: '#footer-water',
-    height: 18,
-    bones: 5,
-    amplitude: 10,
-    color: 'rgba(44, 191, 210, .88)',
-    speed: .3
-  });
-  window.wavify(wave, {
-    container: '#footer-water',
-    height: 38,
-    bones: 4,
-    amplitude: 8,
-    color: 'rgba(177, 246, 247, .92)',
-    speed: .42
-  });
+  const frontWave = document.getElementById('footer-wave-front');
+  if (!wave || !backWave || !frontWave || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const animate = timestamp => {
+    drawFooterWave(backWave, 18, 12, timestamp / 1800);
+    drawFooterWave(wave, 32, 10, timestamp / 600);
+    drawFooterWave(frontWave, 43, 8, timestamp / 360);
+    window.requestAnimationFrame(animate);
+  };
+  window.requestAnimationFrame(animate);
 }
 
 function loadFooterWaves() {
   if (document.documentElement.dataset.footerWavesLoaded || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   document.documentElement.dataset.footerWavesLoaded = 'true';
-  const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/wavify@1.0.0/wavify.js';
-  script.async = true;
-  script.onload = startFooterWaves;
-  document.head.append(script);
+  startFooterWaves();
 }
 
 const footerWater = document.getElementById('footer-water');
@@ -290,7 +288,7 @@ function setHeroMapExpanded(expanded) {
 }
 
 function heroMapIsZoomed() {
-  return Boolean(heroMap?.classList.contains('is-expanded') || heroMap?.classList.contains('is-dragging') || (hoverCapable.matches && heroMap?.matches(':hover')));
+  return Boolean(heroMap?.classList.contains('is-expanded') || heroMap?.classList.contains('is-dragging'));
 }
 
 function clampHeroMapPan() {
@@ -447,7 +445,7 @@ function openGameStage(game) {
   stage.setAttribute('role', 'dialog');
   stage.setAttribute('aria-modal', 'true');
   stage.setAttribute('aria-label', `Jugando a ${card.querySelector('h3').textContent}`);
-  stage.innerHTML = `<div class="game-stage__curtain game-stage__curtain--left"></div><div class="game-stage__curtain game-stage__curtain--right"></div><div class="game-stage__content"><button class="stage-close" type="button" aria-label="Volver a minijuegos">← VOLVER A MINIJUEGOS</button><div class="game-stage__hud"></div><div class="game-stage__slot"></div></div>`;
+  stage.innerHTML = `<div class="game-stage__curtain game-stage__curtain--left"></div><div class="game-stage__curtain game-stage__curtain--right"></div><div class="game-stage__content"><div class="game-stage__bar"><button class="stage-close" type="button" aria-label="Volver a minijuegos">← VOLVER A MINIJUEGOS</button><div class="game-stage__hud"></div></div><div class="game-stage__slot"></div></div>`;
   document.body.append(stage);
   stage.querySelector('.game-stage__hud').append(status);
   stage.querySelector('.game-stage__slot').append(card);
@@ -614,7 +612,7 @@ function startCoinCatch() {
     }
   };
   const spawn = () => {
-    const isCoin = Math.random() > .28;
+    const isCoin = Math.random() > .42;
     const left = 8 + Math.random() * 84;
     const fallDuration = 1250 + Math.round(Math.random() * 1050);
     const spinDirection = Math.random() < .5 ? -1 : 1;
@@ -669,7 +667,7 @@ function startCoinCatch() {
       resolveDrop(false);
     }, fallDuration));
   };
-  spawn(); coinSpawner = setInterval(spawn, 780);
+  spawn(); coinSpawner = setInterval(spawn, 680);
   coinTimer = setInterval(() => {
     seconds -= 1;
     status.textContent = `${seconds} s · ${score} monedas`;
