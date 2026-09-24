@@ -115,13 +115,14 @@ let footerShipTurning = false;
 footerShip?.addEventListener('click', () => {
   if (footerShipTurning) return;
   footerShipTurning = true;
+  const nextDirectionIsLeft = !footerShipReturning;
+  const sailAnimation = footerShip.getAnimations().find(animation => animation.animationName === 'footer-ship-sail');
+  if (sailAnimation) sailAnimation.playbackRate = nextDirectionIsLeft ? -1 : 1;
   footerShip.style.setProperty('--ship-turn', footerShipReturning ? '-180deg' : '180deg');
   footerShip.classList.add('is-turning');
   setTimeout(() => {
-    footerShipReturning = !footerShipReturning;
+    footerShipReturning = nextDirectionIsLeft;
     footerShip.classList.toggle('is-returning', footerShipReturning);
-    const sailAnimation = footerShip.getAnimations().find(animation => animation.animationName === 'footer-ship-sail');
-    if (sailAnimation) sailAnimation.playbackRate = footerShipReturning ? -1 : 1;
     footerShip.classList.remove('is-turning');
     footerShip.setAttribute('aria-label', footerShipReturning ? 'El barco navega hacia la izquierda. Cambiar dirección' : 'El barco navega hacia la derecha. Cambiar dirección');
     footerShipTurning = false;
@@ -920,6 +921,6 @@ syncBackTopVisibility();
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=20260924T092546064', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=20260924T092650253', { updateViaCache: 'none' }).catch(() => {});
   }, { once: true });
 }
