@@ -168,6 +168,7 @@ let musicEnabled = false;
 let themeHasPlayed = false;
 let audioSourceLoaded = false;
 let gameAudioContext;
+const gameSoundsEnabled = true;
 themeAudio.volume = 0.25;
 if (welcomeWasSeen) {
   welcomeCurtain.remove();
@@ -185,7 +186,7 @@ function syncAudioToggle() {
 }
 
 function playGameSound(name) {
-  if (!musicEnabled) return;
+  if (!gameSoundsEnabled) return;
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
   if (!gameAudioContext) gameAudioContext = new AudioContext();
@@ -720,7 +721,7 @@ function clearParrotRound() {
 }
 
 function playParrotTone(note) {
-  if (!musicEnabled) return;
+  if (!gameSoundsEnabled) return;
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
   if (!gameAudioContext) gameAudioContext = new AudioContext();
@@ -888,6 +889,6 @@ syncBackTopVisibility();
 
 if ('serviceWorker' in navigator && window.isSecureContext) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=20260924T085800466', { updateViaCache: 'none' }).catch(() => {});
+    navigator.serviceWorker.register('./sw.js?v=20260924T090729545', { updateViaCache: 'none' }).catch(() => {});
   }, { once: true });
 }

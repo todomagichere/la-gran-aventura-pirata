@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lira-static-20260924T085800466';
+const CACHE_NAME = 'lira-static-20260924T090729545';
 const CACHEABLE_DESTINATIONS = new Set(['font', 'image', 'script', 'style']);
 
 self.addEventListener('install', () => self.skipWaiting());
