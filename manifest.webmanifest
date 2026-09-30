@@ -1,0 +1,16 @@
+{
+  "name": "La Gran Aventura Pirata",
+  "short_name": "Aventura Pirata",
+  "start_url": "./",
+  "display": "standalone",
+  "theme_color": "#063747",
+  "background_color": "#fbf2dc",
+  "icons": [
+    {
+      "src": "./src/assets/moneda-pirata.7c2f.webp",
+      "sizes": "320x320",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    }
+  ]
+}

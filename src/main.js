@@ -1,5 +1,22 @@
 
 const root = document.getElementById('root');
+const pendingTrackEvents = new Set();
+
+function trackEvent(eventName, params = {}) {
+  const event = { event: eventName, ...params };
+  const eventKey = JSON.stringify(event);
+  if (pendingTrackEvents.has(eventKey)) return;
+
+  try {
+    const dataLayer = window.dataLayer = window.dataLayer || [];
+    if (typeof dataLayer.push !== 'function') return;
+    pendingTrackEvents.add(eventKey);
+    dataLayer.push(event);
+    window.setTimeout(() => pendingTrackEvents.delete(eventKey), 0);
+  } catch {
+    // El seguimiento no debe afectar a la experiencia si GTM no está disponible.
+  }
+}
 
 root.innerHTML = `
   <audio id="theme-audio" data-src="./src/assets/monkey_island_main_theme.m4a" loop preload="none" playsinline></audio>
@@ -257,6 +274,7 @@ async function playTheme() {
 audioToggle.addEventListener('click', () => {
   musicEnabled = themeAudio.paused;
   localStorage.setItem('lira-theme-audio', musicEnabled ? 'on' : 'off');
+  trackEvent('music_toggle', { state: musicEnabled ? 'on' : 'off' });
   if (musicEnabled) playTheme();
   else themeAudio.pause();
   syncAudioToggle();
@@ -275,6 +293,7 @@ window.addEventListener('scroll', () => {
   if (!themeHasPlayed) playTheme();
 }, { passive: true });
 welcomeContinue.addEventListener('click', () => {
+  trackEvent('intro_continue');
   welcomeCurtain.classList.add('is-opening');
   document.body.classList.remove('intro-active');
   localStorage.setItem(welcomeSeenKey, 'yes');
@@ -394,9 +413,18 @@ if (heroMap && heroMapImage) {
       return;
     }
     if (hoverCapable.matches) return;
-    setHeroMapExpanded(!heroMap.classList.contains('is-expanded'));
+    const expanded = !heroMap.classList.contains('is-expanded');
+    setHeroMapExpanded(expanded);
+    if (expanded) trackEvent('hero_map_expand');
   });
 }
+
+document.querySelector('.hero-btn')?.addEventListener('click', () => {
+  trackEvent('cta_embarcar_click', { location: 'hero' });
+});
+document.querySelector('.gps-link')?.addEventListener('click', () => {
+  trackEvent('map_directions_click');
+});
 
 function setMenuOpen(isOpen) {
   siteHeader.classList.toggle('is-nav-open', isOpen);
@@ -477,6 +505,7 @@ function updateProgress() {
 }
 
 function winGame(game, message) {
+  trackEvent('game_complete', { game, result: 'win' });
   playGameSound('win');
   if (!progress[game]) {
     progress[game] = true;
@@ -547,6 +576,7 @@ function startGameRound(game) {
   const card = gameCards[game];
   card.querySelector('.game-start').hidden = true;
   card.querySelector('.game-replay').hidden = true;
+  trackEvent('game_start', { game });
   playGameSound('start');
   if (game === 'treasure') startTreasure();
   if (game === 'coins') startCoinCatch();
@@ -627,6 +657,7 @@ function startTreasure() {
       playGameSound('timeout');
       setTimedGameStatus(status, 'El tiempo se agotó. ¡Prueba de nuevo!', seconds);
       gameCards.treasure.querySelector('.game-replay').hidden = false;
+      trackEvent('game_failed', { game: 'treasure', result: 'lose' });
       showGameResult('treasure', `El tiempo se agotó. Encontraste ${found} de 5 objetos.`, false);
     }
   }, 1000);
@@ -740,6 +771,7 @@ function startCoinCatch() {
         playGameSound('timeout');
         setTimedGameStatus(status, `Conseguiste ${score} monedas. Necesitas 8 para ganar.`, seconds);
         gameCards.coins.querySelector('.game-replay').hidden = false;
+        trackEvent('game_failed', { game: 'coins', result: 'lose' });
         showGameResult('coins', `Conseguiste ${score} monedas. Necesitas 8 para completar la misión.`, false);
       }
     }
@@ -811,6 +843,7 @@ function startParrot() {
       playGameSound('error');
       status.textContent = `¡Casi! Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'}.`;
       gameCards.parrot.querySelector('.game-replay').hidden = false;
+      trackEvent('game_failed', { game: 'parrot', result: 'lose' });
       showGameResult('parrot', `Llegaste a ${playerStep + 1} llamada${playerStep === 0 ? '' : 's'} del loro.`, false);
       return;
     }
@@ -882,6 +915,9 @@ document.getElementById('rsvp-form').addEventListener('submit', event => {
   const name = document.getElementById('guest-name').value.trim();
   const attendanceMessage = document.getElementById('guest-answer').value;
   if (!name) return;
+
+  const attendance = attendanceMessage === 'asistirá a la fiesta' ? 'yes' : attendanceMessage === 'no asistirá a la fiesta' ? 'no' : undefined;
+  if (attendance) trackEvent('rsvp_submit', { attendance });
 
   const message = `${name} ${attendanceMessage}!`;
   const whatsappUrl = `https://wa.me/34611415373?text=${encodeURIComponent(message)}`;
