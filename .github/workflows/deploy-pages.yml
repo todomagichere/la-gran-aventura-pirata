@@ -43,7 +43,6 @@ jobs:
             --exclude 'nginx.conf' \
             --exclude 'package.json' \
             --exclude 'README.md' \
-            --exclude 'src/assets/bota-pirata-realista.webp' \
             --exclude 'src/assets/cofre-pirata-realista.webp' \
             --exclude 'src/assets/iconos-piratas-reales.webp' \
             --exclude 'src/assets/mapa_del_tesoro.webp' \
