@@ -8,13 +8,12 @@ function trackEvent(eventName, params = {}) {
   if (pendingTrackEvents.has(eventKey)) return;
 
   try {
-    const dataLayer = window.dataLayer = window.dataLayer || [];
-    if (typeof dataLayer.push !== 'function') return;
+    if (typeof window.gtag !== 'function') return;
     pendingTrackEvents.add(eventKey);
-    dataLayer.push(event);
+    window.gtag('event', eventName, params);
     window.setTimeout(() => pendingTrackEvents.delete(eventKey), 0);
   } catch {
-    // El seguimiento no debe afectar a la experiencia si GTM no está disponible.
+    // El seguimiento no debe afectar a la experiencia si Analytics no está disponible.
   }
 }
 
