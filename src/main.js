@@ -100,33 +100,109 @@ const galleryLightboxNext = document.getElementById('gallery-lightbox-next');
 const galleryLightboxCounter = document.getElementById('gallery-lightbox-counter');
 let gallerySwiper;
 let galleryLightboxIndex = 0;
+let galleryHasBeenViewed = false;
+let gallerySlideStartedAt = null;
+let gallerySlideIndex = 0;
+let gallerySlideMethod = 'autoplay';
+let galleryPendingNavigationMethod = 'autoplay';
+let galleryLightboxStartedAt = null;
 
-function updateGalleryLightbox(index) {
+function galleryEventParams(index, extra = {}) {
+  const photo = galleryPhotos[index];
+  return {
+    gallery_image_id: photo.file,
+    gallery_image_position: index + 1,
+    gallery_total_images: galleryPhotos.length,
+    ...extra
+  };
+}
+
+function trackGallerySlideDwell() {
+  if (!galleryHasBeenViewed || gallerySlideStartedAt === null) return;
+  const duration = Math.round(performance.now() - gallerySlideStartedAt);
+  if (duration >= 1000) {
+    trackEvent('gallery_image_dwell', galleryEventParams(gallerySlideIndex, {
+      gallery_dwell_ms: duration,
+      gallery_navigation_method: gallerySlideMethod
+    }));
+  }
+  gallerySlideStartedAt = null;
+}
+
+function trackGallerySlideView(index, method) {
+  if (!galleryHasBeenViewed || galleryLightbox.open) return;
+  trackGallerySlideDwell();
+  gallerySlideIndex = index;
+  gallerySlideMethod = method;
+  gallerySlideStartedAt = performance.now();
+  trackEvent('gallery_image_view', galleryEventParams(index, {
+    gallery_navigation_method: method
+  }));
+}
+
+function trackGalleryLightboxDwell() {
+  if (galleryLightboxStartedAt === null) return;
+  const duration = Math.round(performance.now() - galleryLightboxStartedAt);
+  if (duration >= 1000) {
+    trackEvent('gallery_lightbox_dwell', galleryEventParams(galleryLightboxIndex, {
+      gallery_dwell_ms: duration
+    }));
+  }
+  galleryLightboxStartedAt = null;
+}
+
+function updateGalleryLightbox(index, navigationMethod = 'image_click') {
+  if (galleryLightbox.open) trackGalleryLightboxDwell();
   galleryLightboxIndex = (index + galleryPhotos.length) % galleryPhotos.length;
   const photo = galleryPhotos[galleryLightboxIndex];
   galleryLightboxImage.src = `./assets/images/${photo.file}.webp`;
   galleryLightboxImage.alt = photo.alt;
   galleryLightboxCaption.textContent = photo.alt;
   galleryLightboxCounter.textContent = `${galleryLightboxIndex + 1} / ${galleryPhotos.length}`;
+  galleryLightboxStartedAt = performance.now();
+  trackEvent('gallery_lightbox_image_view', galleryEventParams(galleryLightboxIndex, {
+    gallery_navigation_method: navigationMethod
+  }));
+  galleryPendingNavigationMethod = 'lightbox_navigation';
   gallerySwiper?.slideToLoop(galleryLightboxIndex);
 }
 
 document.querySelectorAll('[data-gallery-src]').forEach(item => {
   item.addEventListener('click', () => {
+    if (!galleryLightbox.open) {
+      galleryLightbox.showModal();
+    }
     updateGalleryLightbox(Number(item.dataset.galleryIndex));
-    if (!galleryLightbox.open) galleryLightbox.showModal();
+    trackEvent('gallery_lightbox_open', galleryEventParams(galleryLightboxIndex));
   });
 });
 
 galleryLightboxClose?.addEventListener('click', () => galleryLightbox.close());
-galleryLightboxPrevious?.addEventListener('click', () => updateGalleryLightbox(galleryLightboxIndex - 1));
-galleryLightboxNext?.addEventListener('click', () => updateGalleryLightbox(galleryLightboxIndex + 1));
+galleryLightboxPrevious?.addEventListener('click', () => {
+  trackEvent('gallery_lightbox_navigate', galleryEventParams(galleryLightboxIndex, { gallery_navigation_direction: 'previous' }));
+  updateGalleryLightbox(galleryLightboxIndex - 1, 'lightbox_previous');
+});
+galleryLightboxNext?.addEventListener('click', () => {
+  trackEvent('gallery_lightbox_navigate', galleryEventParams(galleryLightboxIndex, { gallery_navigation_direction: 'next' }));
+  updateGalleryLightbox(galleryLightboxIndex + 1, 'lightbox_next');
+});
 galleryLightbox?.addEventListener('click', event => {
   if (event.target === galleryLightbox) galleryLightbox.close();
 });
 galleryLightbox?.addEventListener('keydown', event => {
-  if (event.key === 'ArrowLeft') updateGalleryLightbox(galleryLightboxIndex - 1);
-  if (event.key === 'ArrowRight') updateGalleryLightbox(galleryLightboxIndex + 1);
+  if (event.key === 'ArrowLeft') {
+    trackEvent('gallery_lightbox_navigate', galleryEventParams(galleryLightboxIndex, { gallery_navigation_direction: 'previous_keyboard' }));
+    updateGalleryLightbox(galleryLightboxIndex - 1, 'lightbox_keyboard_previous');
+  }
+  if (event.key === 'ArrowRight') {
+    trackEvent('gallery_lightbox_navigate', galleryEventParams(galleryLightboxIndex, { gallery_navigation_direction: 'next_keyboard' }));
+    updateGalleryLightbox(galleryLightboxIndex + 1, 'lightbox_keyboard_next');
+  }
+});
+galleryLightbox?.addEventListener('close', () => {
+  trackGalleryLightboxDwell();
+  trackEvent('gallery_lightbox_close', galleryEventParams(galleryLightboxIndex));
+  galleryLightboxStartedAt = null;
 });
 
 if (window.Swiper) {
@@ -159,7 +235,47 @@ if (window.Swiper) {
       1201: { slidesPerView: 2.65, spaceBetween: 34 }
     }
   });
+
+  gallerySwiper.on('autoplay', () => { galleryPendingNavigationMethod = 'autoplay'; });
+  gallerySwiper.on('touchStart', () => { galleryPendingNavigationMethod = 'swipe'; });
+  gallerySwiper.on('keyPress', () => { galleryPendingNavigationMethod = 'keyboard'; });
+  gallerySwiper.on('slideChange', () => {
+    trackGallerySlideView(gallerySwiper.realIndex, galleryPendingNavigationMethod);
+    galleryPendingNavigationMethod = 'autoplay';
+  });
+
+  document.querySelector('.gallery-swiper__prev')?.addEventListener('click', () => {
+    galleryPendingNavigationMethod = 'previous_button';
+  }, true);
+  document.querySelector('.gallery-swiper__next')?.addEventListener('click', () => {
+    galleryPendingNavigationMethod = 'next_button';
+  }, true);
+  document.querySelector('.gallery-swiper__pagination')?.addEventListener('click', () => {
+    galleryPendingNavigationMethod = 'pagination';
+  }, true);
 }
+
+const gallerySection = document.getElementById('galeria');
+if ('IntersectionObserver' in window && gallerySection) {
+  const galleryObserver = new IntersectionObserver(entries => {
+    if (!entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .45) || galleryHasBeenViewed) return;
+    galleryHasBeenViewed = true;
+    gallerySlideIndex = gallerySwiper?.realIndex || 0;
+    gallerySlideMethod = 'initial';
+    galleryPendingNavigationMethod = 'autoplay';
+    gallerySlideStartedAt = performance.now();
+    trackEvent('gallery_section_view', { gallery_total_images: galleryPhotos.length });
+    trackEvent('gallery_image_view', galleryEventParams(gallerySlideIndex, { gallery_navigation_method: 'initial' }));
+    galleryObserver.disconnect();
+  }, { threshold: .45 });
+  galleryObserver.observe(gallerySection);
+}
+
+window.addEventListener('pagehide', trackGallerySlideDwell);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') trackGallerySlideDwell();
+  if (document.visibilityState === 'visible' && galleryHasBeenViewed && gallerySlideStartedAt === null) gallerySlideStartedAt = performance.now();
+});
 
 const realEmojiIcons = {
   '☠': 'skull', '🗺️': 'map', '🥥': 'coconut', '🎁': 'gift', '✥': 'compass',
