@@ -1,6 +1,31 @@
 
 const root = document.getElementById('root');
 const pendingTrackEvents = new Set();
+const galleryPhotos = [
+  { file: 'taller-tabla-pirata', alt: 'Preparación de una tabla de madera para la decoración pirata.', layout: 'wide' },
+  { file: 'pintura-decorado-pirata', alt: 'Pintando una pieza del decorado pirata.' },
+  { file: 'libreto-nombre-pirata', alt: 'Libreto para descubrir el nombre pirata.' },
+  { file: 'pergamino-nombres-pirata', alt: 'Pergamino con nombres pirata en preparación.', layout: 'tall' },
+  { file: 'calavera-pirata-en-proceso', alt: 'Calavera pirata en proceso de creación.' },
+  { file: 'timones-piratas-pintados', alt: 'Timones piratas pintados para el decorado.' },
+  { file: 'pintura-atrezzo-pirata', alt: 'Materiales y pintura para el atrezzo pirata.' },
+  { file: 'patron-timon-pirata', alt: 'Patrón de un timón para el decorado pirata.' },
+  { file: 'sacos-tarde-de-costura', alt: 'Tarde de costura para preparar la escenografía.' },
+  { file: 'sacos-pirata-en-proceso', alt: 'Sacos pirata en proceso de preparación.', layout: 'wide' },
+  { file: 'cajas-y-barril-pirata', alt: 'Cajas y barril para la escenografía pirata.' },
+  { file: 'laberinto-pirata-inicio', alt: 'Primeros pasos del laberinto pirata.' },
+  { file: 'laberinto-pirata', alt: 'Tablero del laberinto pirata en preparación.' },
+  { file: 'fichas-piratas-blancas', alt: 'Fichas piratas blancas para una prueba.' },
+  { file: 'fichas-piratas-negras', alt: 'Fichas piratas negras para una prueba.' },
+  { file: 'cartel-codigo-pirata', alt: 'Código pirata escrito en una pizarra.' },
+  { file: 'enigma-de-barbanegra', alt: 'Cartel del enigma de Barbanegra.', layout: 'wide' },
+  { file: 'fichas-piratas-ensambladas', alt: 'Fichas piratas ensambladas para el juego.', width: 1152, height: 2048 },
+  { file: 'laberinto-pirata-en-proceso', alt: 'Laberinto pirata en proceso de diseño.' },
+  { file: 'cartel-pulso-barbanegra', alt: 'Cartel de la prueba de pulso de Barbanegra.' },
+  { file: 'laberinto-pirata-terminado', alt: 'Laberinto pirata terminado.', layout: 'tall' },
+  { file: 'laberinto-pirata-construccion', alt: 'Construcción del laberinto pirata.' }
+];
+const galleryMarkup = galleryPhotos.map(({ file, alt, width = 1125, height = 2000 }, index) => `<figure class="photo-gallery__item swiper-slide"><button type="button" data-gallery-index="${index}" data-gallery-src="./assets/images/${file}.webp" data-gallery-alt="${alt}" aria-label="Ampliar foto: ${alt}"><img src="./assets/images/${file}.webp" srcset="./assets/images/${file}-480.webp 480w, ./assets/images/${file}-768.webp 768w, ./assets/images/${file}.webp ${width}w" sizes="(max-width: 560px) 82vw, (max-width: 900px) 43vw, (max-width: 1200px) 30vw, 24vw" width="${width}" height="${height}" loading="lazy" decoding="async" alt="${alt}"></button></figure>`).join('');
 
 function trackEvent(eventName, params = {}) {
   const event = { event: eventName, ...params };
@@ -25,7 +50,7 @@ root.innerHTML = `
     <div class="welcome-curtain__message"><span aria-hidden="true">☠</span><p>ATENCIÓN</p><h1 id="welcome-title">MENSAJE PARA<br>LA TRIPULACIÓN</h1><button id="welcome-continue" type="button">HAZ CLIC PARA CONTINUAR <b aria-hidden="true">→</b></button></div>
   </section>
   <button class="audio-toggle" id="audio-toggle" type="button" aria-label="Activar música" aria-pressed="false" title="Activar música">🔇</button>
-  <header><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><button class="nav-toggle" type="button" aria-label="Abrir menú" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span></button><nav id="site-nav"><a href="#aventura">Bitácora</a><a href="#vestimenta">Código de a bordo</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
+  <header><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><button class="nav-toggle" type="button" aria-label="Abrir menú" aria-controls="site-nav" aria-expanded="false"><span></span><span></span><span></span></button><nav id="site-nav"><a href="#aventura">Bitácora</a><a href="#vestimenta">Código de a bordo</a><a href="#galeria">Galería</a><a href="#mapa">Mapa del botín</a><a href="#juegos">Juegos de cubierta</a><a href="#confirmar" class="nav-cta">¡AL ABORDAJE!</a></nav></header>
   <main>
     <section class="hero" id="inicio"><div class="hero-copy"><h1>LA GRAN AVENTURA <em>PIRATA</em></h1></div>
       <div class="scene"><button class="hero-map" id="hero-map" type="button" aria-label="Ampliar y explorar el mapa del tesoro" aria-expanded="false"><img src="./src/assets/mapa-del-tesoro.7c2f.webp" srcset="./src/assets/mapa-del-tesoro.mobile.7c2f.webp 960w, ./src/assets/mapa-del-tesoro.7c2f.webp 1280w" sizes="(max-width: 560px) 118vw, (max-width: 900px) 110vw, 920px" width="1280" height="876" fetchpriority="high" decoding="async" alt="Mapa del tesoro de la Capitana Lira." /></button></div><div class="hero-details"><p class="intro">La Capitana Lira busca una tripulación valiente para celebrar su cumpleaños. ¿Te apuntas a la aventura?</p><div class="date-row"><div><span>OCT</span><b>24</b></div><p><strong>SÁBADO · 11:00 H</strong><br>En la Isla del Tesoro</p></div><a class="gold-btn hero-btn" href="#confirmar">¡QUIERO EMBARCAR! <span>→</span></a></div>
@@ -33,6 +58,7 @@ root.innerHTML = `
     <section class="countdown map-section" aria-labelledby="countdown-title"><div class="countdown__card map-card"><h2 id="countdown-title">FALTAN...</h2><div class="countdown__units" role="timer" aria-live="polite" aria-atomic="true"><div><b id="countdown-days">00</b><span>DÍAS</span></div><div><b id="countdown-hours">00</b><span>HORAS</span></div><div><b id="countdown-minutes">00</b><span>MINUTOS</span></div><div><b id="countdown-seconds">00</b><span>SEGUNDOS</span></div></div><p class="countdown__status" id="countdown-status">Hasta el 24 de octubre de 2026 · 11:00 h</p></div></section>
     <section class="adventure" id="aventura"><p class="eyebrow">PREPARA TU CATALEJO</p><h2>Una aventura de las que hacen historia</h2><p class="section-intro">Juegos, tesoros escondidos, comida y muchas sorpresas esperan a toda la tripulación.</p><div class="features"><article><span>🗺️</span><div><b>MAPA DEL TESORO</b><p>Sigue las pistas y encuentra el botín secreto de la Capitana.</p></div></article><article><span>🥥</span><div><b>COMIDA PIRATA</b><p>Provisiones deliciosas para recuperar fuerzas.</p></div></article><article><span>🎁</span><div><b>BOTÍN SORPRESA</b><p>Cada grumete se llevará un recuerdo de la isla.</p></div></article></div></section>
     <section class="dress-code" id="vestimenta" aria-label="Código de la tripulación"><div class="dress-code__card"><div class="dress-code__copy"><p class="eyebrow">CÓDIGO DE LA TRIPULACIÓN</p><p class="dress-code__intro">Esto es una fiesta pirata: venid cómodos y con ganas de zarpar.</p><div class="dress-code__rules"><article><p>PARA LOS GRUMETES</p><b>Arriba, camiseta o sudadera blanca.</b><span>Abajo, pantalón negro, marrón o azul marino.</span></article><article><p>PARA LOS ADULTOS</p><b>Un toque pirata para toda la tripulación.</b><span>Y si os apetece disfrazaros, ¡a bordo se celebra la osadía!</span></article></div></div><figure class="dress-code__art"><img data-src="./src/assets/bota-pirata-realista.webp" width="1024" height="1024" loading="lazy" decoding="async" alt="Bota pirata sobre el pergamino del código de vestimenta."><figcaption>La única regla: pasarlo bien.</figcaption></figure></div></section>
+    <section class="gallery" id="galeria" aria-labelledby="gallery-title"><div class="gallery__parchment"><div class="gallery__heading"><p class="eyebrow">LA BITÁCORA DEL ASTILLERO</p><h2 id="gallery-title">Así se prepara una aventura pirata</h2><p class="section-intro">Un vistazo a los carteles, pruebas y decoraciones que han ido tomando forma antes de zarpar.</p></div><div class="photo-gallery swiper" aria-label="Galería de la preparación de la aventura"><div class="swiper-wrapper">${galleryMarkup}</div><div class="gallery-swiper__controls"><button class="gallery-swiper__prev" type="button">ANTERIOR</button><div class="gallery-swiper__pagination" aria-label="Páginas de la galería"></div><button class="gallery-swiper__next" type="button">SIGUIENTE</button></div></div></div></section>
     <section class="map-section" id="mapa"><div class="map-card"><span class="compass">✥</span><div class="route"><img data-src="./src/assets/ruta-isla.webp" alt="Isla del tesoro" width="256" height="256" loading="lazy" decoding="async"></div><p>EL LUGAR SECRETO</p><h2>L’Olivera Casa Rural</h2><p>Carrer Casetes de Ca n’Olivero, 7<br>08755 Castellbisbal, Barcelona</p><div class="map-embed" data-map-src="https://maps.google.com/maps?hl=es&ll=41.570%2C2.000&q=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona&z=12&iwloc=B&output=embed" aria-label="Mapa de L’Olivera Casa Rural y Terrassa"><div class="map-embed__loading">PREPARANDO EL MAPA...</div></div><a class="gold-btn gps-link" href="https://www.google.com/maps/dir/?api=1&destination=L%27Olivera%20Casa%20Rural%2C%20Carrer%20Casetes%20de%20Ca%20n%27Olivero%207%2C%2008755%20Castellbisbal%2C%20Barcelona" target="_blank" rel="noopener">NAVEGAR CON BRÚJULA</a></div></section>
     <section class="games" id="juegos"><p class="eyebrow">ENTRENA COMO UN PIRATA</p><h2>La academia de grumetes</h2><p class="section-intro">Retos cortos para toda la tripulación. ¡Consigue monedas pirata!</p><div class="games-progress" aria-live="polite"><span aria-hidden="true">🪙</span><div><b id="coin-total">0</b> monedas pirata</div><small id="progress-message">Completa un juego para ganar tu primera moneda.</small></div><div class="game-layout">
       <article class="game-card mini-game" data-game="treasure"><div class="game-title"><span class="game-icon">🗺️</span><div><p>CAZA DEL TESORO</p><h3>Objetos perdidos</h3></div></div><p class="hint">Encuentra los 5 objetos pirata antes de que se agote el reloj.</p><button class="game-start" data-start="treasure">JUGAR</button><div class="treasure-scene" id="treasure-scene" hidden aria-label="Isla para buscar tesoros"></div><div class="game-footer"><small id="treasure-status">5 objetos · 60 segundos</small><button class="game-replay" data-replay="treasure" hidden>Jugar otra vez ↻</button></div></article>
@@ -42,6 +68,7 @@ root.innerHTML = `
     </div></section>
     <section class="rsvp" id="confirmar"><div class="bottle" aria-hidden="true">🍾</div><div><p class="eyebrow light">CONFIRMA TU EMBARQUE</p><h2>¿Te unes a la tripulación?</h2><p>La capitana necesita saber cuántos grumetes subirán a bordo.</p></div><div id="rsvp-slot"><form id="rsvp-form"><label>Nombre del grumete<input id="guest-name" placeholder="Escribe tu nombre" required></label><label>¿Vendrás a la fiesta?<select id="guest-answer"><option value="asistirá a la fiesta">¡Sí, allí estaré!</option><option value="no asistirá a la fiesta">No podré embarcar</option><option value="aún no sabe si asistirá a la fiesta">Aún no lo sé</option></select></label><button class="gold-btn" type="submit">CONFIRMAR POR WHATSAPP <span>→</span></button></form></div></section>
   </main>
+  <dialog class="gallery-lightbox" id="gallery-lightbox" aria-labelledby="gallery-lightbox-caption"><div class="gallery-lightbox__frame"><button class="gallery-lightbox__close" id="gallery-lightbox-close" type="button">CERRAR</button><img id="gallery-lightbox-image" alt=""><div class="gallery-lightbox__navigation"><button id="gallery-lightbox-prev" type="button">ANTERIOR</button><span id="gallery-lightbox-counter" aria-live="polite"></span><button id="gallery-lightbox-next" type="button">SIGUIENTE</button></div><p id="gallery-lightbox-caption"></p></div></dialog>
   <div class="guybrush-easter-egg" id="guybrush-easter-egg" aria-hidden="true"><img data-easter-src="./src/assets/guybrush.webp" alt=""></div>
   <footer><a class="brand" href="#inicio"><div>LA GRAN AVENTURA <b>PIRATA</b></div></a><p>Hecho con mucho cariño para la Capitana Lira · Cumple 7 años</p><button id="back-top" type="button" aria-label="Volver arriba" title="Volver arriba"><span aria-hidden="true">➤</span></button><div id="footer-water"><svg class="footer-waves footer-waves--back" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave-back" d="M0 18 Q25 6 50 18 T100 18 V60 H0 Z"></path></svg><svg class="footer-waves footer-waves--middle" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave" d="M0 32 Q25 22 50 32 T100 32 V60 H0 Z"></path></svg><button class="footer-ship" id="footer-ship" type="button" aria-label="Cambiar la dirección del barco"><span class="footer-ship__art"><img src="./src/assets/barco-pirata-footer.webp" width="1536" height="1024" alt="" loading="lazy" decoding="async"></span></button><svg class="footer-waves footer-waves--front" width="100%" height="60" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path id="footer-wave-front" d="M0 43 Q25 35 50 43 T100 43 V60 H0 Z"></path></svg></div></footer>`;
 
@@ -62,6 +89,76 @@ if ('IntersectionObserver' in window) {
   deferredImages.forEach(image => imageObserver.observe(image));
 } else {
   deferredImages.forEach(loadDeferredImage);
+}
+
+const galleryLightbox = document.getElementById('gallery-lightbox');
+const galleryLightboxImage = document.getElementById('gallery-lightbox-image');
+const galleryLightboxCaption = document.getElementById('gallery-lightbox-caption');
+const galleryLightboxClose = document.getElementById('gallery-lightbox-close');
+const galleryLightboxPrevious = document.getElementById('gallery-lightbox-prev');
+const galleryLightboxNext = document.getElementById('gallery-lightbox-next');
+const galleryLightboxCounter = document.getElementById('gallery-lightbox-counter');
+let gallerySwiper;
+let galleryLightboxIndex = 0;
+
+function updateGalleryLightbox(index) {
+  galleryLightboxIndex = (index + galleryPhotos.length) % galleryPhotos.length;
+  const photo = galleryPhotos[galleryLightboxIndex];
+  galleryLightboxImage.src = `./assets/images/${photo.file}.webp`;
+  galleryLightboxImage.alt = photo.alt;
+  galleryLightboxCaption.textContent = photo.alt;
+  galleryLightboxCounter.textContent = `${galleryLightboxIndex + 1} / ${galleryPhotos.length}`;
+  gallerySwiper?.slideToLoop(galleryLightboxIndex);
+}
+
+document.querySelectorAll('[data-gallery-src]').forEach(item => {
+  item.addEventListener('click', () => {
+    updateGalleryLightbox(Number(item.dataset.galleryIndex));
+    if (!galleryLightbox.open) galleryLightbox.showModal();
+  });
+});
+
+galleryLightboxClose?.addEventListener('click', () => galleryLightbox.close());
+galleryLightboxPrevious?.addEventListener('click', () => updateGalleryLightbox(galleryLightboxIndex - 1));
+galleryLightboxNext?.addEventListener('click', () => updateGalleryLightbox(galleryLightboxIndex + 1));
+galleryLightbox?.addEventListener('click', event => {
+  if (event.target === galleryLightbox) galleryLightbox.close();
+});
+galleryLightbox?.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft') updateGalleryLightbox(galleryLightboxIndex - 1);
+  if (event.key === 'ArrowRight') updateGalleryLightbox(galleryLightboxIndex + 1);
+});
+
+if (window.Swiper) {
+  gallerySwiper = new window.Swiper('.photo-gallery', {
+    a11y: { enabled: true },
+    autoplay: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? false : {
+      delay: 2000,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: true
+    },
+    centeredSlides: true,
+    grabCursor: true,
+    keyboard: { enabled: true },
+    loop: true,
+    lazyPreloadPrevNext: 1,
+    speed: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 620,
+    slidesPerView: 1.16,
+    spaceBetween: 12,
+    navigation: {
+      nextEl: '.gallery-swiper__next',
+      prevEl: '.gallery-swiper__prev'
+    },
+    pagination: {
+      el: '.gallery-swiper__pagination',
+      clickable: true
+    },
+    breakpoints: {
+      561: { slidesPerView: 1.7, spaceBetween: 20 },
+      901: { slidesPerView: 2.2, spaceBetween: 28 },
+      1201: { slidesPerView: 2.65, spaceBetween: 34 }
+    }
+  });
 }
 
 const realEmojiIcons = {
